@@ -1,0 +1,275 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ValiCore</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <script src="https://code.highcharts.com/highcharts.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Plus Jakarta Sans', sans-serif; }
+    body { background-color: #f4f7fb; color: #0f172a; height: 100vh; overflow: hidden; font-size: 11.5px; }
+    .hidden { display: none !important; }
+    .app-wrapper { display: flex; width: 100vw; height: 100vh; overflow: hidden; }
+    .sidebar-panel { width: 210px; min-width: 210px; background: linear-gradient(180deg, #1e40af 0%, #0ea5e9 100%); color: #fff; display: flex; flex-direction: column; z-index: 20; }
+    .sidebar-link { display: flex; align-items: center; gap: 8px; width: 100%; padding: 8px 10px; color: #fff; border-radius: 6px; font-size: 11.5px; font-weight: 600; transition: 0.2s; margin-bottom: 2px; background: transparent; border: none; cursor: pointer; text-align: left; }
+    .sidebar-link:hover { background: rgba(255,255,255,0.15); }
+    .sidebar-link.active { background: #fff; color: #1e3a8a; font-weight: 800; }
+    .main-content { flex-grow: 1; display: flex; flex-direction: column; overflow: hidden; }
+    .top-header { height: 48px; background: linear-gradient(90deg, #e0f2fe 0%, #bae6fd 50%, #7dd3fc 100%); border-bottom: 1px solid #38bdf8; display: flex; align-items: center; justify-content: space-between; padding: 0 16px; }
+    
+    #loginPageWrapper { position: fixed; inset: 0; z-index: 9999; display: flex; background: #f0f9ff; }
+    .login-left { width: 55%; display: flex; flex-direction: column; justify-content: center; align-items: center; background: linear-gradient(135deg, #dbeafe 0%, #7dd3fc 50%, #38bdf8 100%); }
+    .login-right { width: 45%; display: flex; flex-direction: column; align-items: center; justify-content: center; background: #f8fafc; }
+    .login-card { width: 380px; background: #fff; padding: 2rem; border-radius: 12px; box-shadow: 0 10px 40px rgba(14, 165, 233, 0.2); border-top: 5px solid #0ea5e9; }
+    .input-group { position: relative; margin-bottom: 1rem; }
+    .input-group label { font-size: 0.7rem; font-weight: 800; color: #0b132b; margin-bottom: 0.3rem; display: block; }
+    .input-group input, .input-group select, .input-group textarea { width: 100%; padding: 8px 10px; border: 1px solid #cbd5e1; border-radius: 6px; font-size: 12px; }
+    
+    .card { background: #fff; border-radius: 12px; border: 1px solid #e2e8f0; box-shadow: 0 2px 4px rgba(0,0,0,0.02); padding: 16px; }
+    table { width: 100%; border-collapse: collapse; text-align: left; font-size: 11px; }
+    th { background: #2563eb; color: white; padding: 8px; font-weight: 600; text-transform: uppercase; font-size: 9px; }
+    td { padding: 8px; border-bottom: 1px solid #e2e8f0; }
+    tbody tr:hover { background-color: #f8fafc; }
+    
+    .spinner-overlay { position: fixed; inset: 0; background: rgba(15, 23, 42, 0.6); display: flex; align-items: center; justify-content: center; z-index: 10000; }
+    .spinner { width: 30px; height: 30px; border: 3px solid #e0f2fe; border-top: 3px solid #0ea5e9; border-radius: 50%; animation: spin 0.8s linear infinite; }
+    @keyframes spin { 100% { transform: rotate(360deg); } }
+  </style>
+</head>
+<body>
+
+  <div id="loadingSpinner" class="spinner-overlay hidden"><div class="bg-white p-4 rounded-xl text-center shadow-lg"><div class="spinner mx-auto mb-2"></div><p class="font-bold text-[#1e3a8a]">Processing...</p></div></div>
+  <div id="customAlertContainer" class="fixed top-5 right-5 z-[10000] flex flex-col gap-3 pointer-events-none"></div>
+
+  <!-- LOGIN PAGE -->
+  <div id="loginPageWrapper">
+    <div class="login-left">
+      <h1 class="text-7xl font-black text-[#0b307f] tracking-tighter drop-shadow-md"><span class="text-[#0ea5e9]">Vali</span>Core</h1>
+      <h2 class="text-2xl font-black text-[#0a2559] mt-4">Total Process Validation Management System</h2>
+      <p class="text-sm font-extrabold text-[#0a2559] tracking-widest mt-2 uppercase">Visibility • Timeliness • Readiness • Monitoring • Control</p>
+    </div>
+    <div class="login-right">
+      <div class="login-card">
+        <div class="text-center mb-6"><h2 class="text-2xl font-black text-[#0b307f]"><span class="text-[#0ea5e9]">Vali</span>Core Login</h2></div>
+        <form id="loginForm" onsubmit="executeLogin(event)">
+          <div class="input-group"><label>EMPLOYEE ID</label><input type="text" id="loginEmpId" required value="ADMIN001"></div>
+          <div class="input-group"><label>PASSWORD</label><input type="password" id="loginPassword" required></div>
+          <button type="submit" class="w-full bg-gradient-to-r from-[#1e3a8a] to-[#0ea5e9] text-white font-extrabold py-2.5 rounded-lg mt-2 shadow-md">Login</button>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- MAIN APP -->
+  <div id="mainAppWrapper" class="app-wrapper hidden">
+    <!-- SIDEBAR -->
+    <aside class="sidebar-panel">
+      <div class="p-4 flex items-center gap-2 border-b border-white/20"><i class="fa-solid fa-shield-halved text-2xl text-white"></i><span class="text-lg font-black tracking-wide text-white">ValiCore</span></div>
+      <div class="p-3 m-2 bg-white/10 rounded-lg flex items-center gap-3 border border-white/20">
+        <div class="w-8 h-8 rounded-full bg-[#1e3a8a] flex items-center justify-center font-bold text-white border-2 border-white" id="navAvatar">ADM</div>
+        <div><div class="text-xs font-bold" id="navUserName">Admin</div><div class="text-[9px] text-sky-100" id="navUserRole">C. Admin</div></div>
+      </div>
+      <nav id="sidebarNav" class="flex-1 px-3 overflow-y-auto">
+        <button class="sidebar-link active" onclick="navigateTo('dashboard', this)"><i class="fa-solid fa-house"></i> Dashboard</button>
+        <button class="sidebar-link" onclick="navigateTo('ccr', this)"><i class="fa-solid fa-file-invoice"></i> CCR (R&D)</button>
+        <button class="sidebar-link" onclick="navigateTo('warehouse', this)"><i class="fa-solid fa-warehouse"></i> Warehouse</button>
+        <button class="sidebar-link" onclick="navigateTo('validation', this)"><i class="fa-solid fa-shield-halved"></i> Validation</button>
+        <button class="sidebar-link" onclick="navigateTo('qa', this)"><i class="fa-solid fa-clipboard-check"></i> QA (Doc. Control)</button>
+      </nav>
+      <div class="p-3"><button onclick="executeLogout()" class="w-full bg-red-500/20 text-white hover:bg-red-500/40 py-2 rounded-md font-bold text-xs"><i class="fa-solid fa-right-from-bracket mr-1"></i> Logout</button></div>
+    </aside>
+
+    <!-- MAIN CONTENT -->
+    <main class="main-content">
+      <header class="top-header"><h1 class="text-sm font-extrabold text-[#1e3a8a]" id="pageTitle">Dashboard</h1><span class="text-xs font-bold text-slate-700" id="headerWelcomeText">Welcome</span></header>
+      <div class="flex-1 p-4 overflow-y-auto bg-[#f4f7fb]" id="viewContainer">
+        
+        <!-- DASHBOARD -->
+        <div id="view-dashboard" class="space-y-4">
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
+            <div class="bg-gradient-to-br from-orange-400 to-red-500 text-white rounded-xl p-4 shadow-md"><p class="text-[10px] font-bold uppercase">Material Need</p><h3 class="text-3xl font-black mt-1" id="metricMatNeed">0</h3></div>
+            <div class="bg-gradient-to-br from-red-500 to-red-700 text-white rounded-xl p-4 shadow-md"><p class="text-[10px] font-bold uppercase">Protocol Pending</p><h3 class="text-3xl font-black mt-1" id="metricProtoPending">0</h3></div>
+            <div class="bg-gradient-to-br from-emerald-400 to-emerald-600 text-white rounded-xl p-4 shadow-md"><p class="text-[10px] font-bold uppercase">Completed</p><h3 class="text-3xl font-black mt-1" id="metricCompleted">0</h3></div>
+          </div>
+          <div class="grid grid-cols-1 lg:grid-cols-2 gap-4 mt-4">
+            <div class="card"><h3 class="font-bold text-[#1e3a8a] text-xs mb-2">Status Overview</h3><div id="pvStatusChart" class="w-full h-48"></div></div>
+            <div class="card"><h3 class="font-bold text-[#1e3a8a] text-xs mb-2">Category Distribution</h3><div id="actionPlanChart" class="w-full h-48"></div></div>
+          </div>
+        </div>
+
+        <!-- CCR -->
+        <div id="view-ccr" class="hidden space-y-4">
+          <div id="ccrFormContainer" class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm hidden mb-4">
+            <div class="border-b pb-2 mb-3 flex justify-between"><h2 class="text-sm font-bold">New CCR Record</h2><button onclick="toggleCcrForm(false)" class="text-red-500"><i class="fa-solid fa-xmark"></i></button></div>
+            <form id="ccrForm" class="grid grid-cols-1 md:grid-cols-4 gap-3" onsubmit="submitNewCcr(event)">
+              <div><label class="text-[10px] font-bold text-slate-500 uppercase">Product Name</label><input type="text" id="ccrName" required class="w-full px-2 py-1 border rounded text-xs"></div>
+              <div><label class="text-[10px] font-bold text-slate-500 uppercase">CCR No</label><input type="text" id="ccrNo" required value="CCR/U01-" class="w-full px-2 py-1 border rounded text-xs"></div>
+              <div><label class="text-[10px] font-bold text-slate-500 uppercase">Batch Size</label><input type="number" id="ccrBatch" required class="w-full px-2 py-1 border rounded text-xs"></div>
+              <div><label class="text-[10px] font-bold text-slate-500 uppercase">Reason</label><select id="ccrReason" required class="w-full px-2 py-1 border rounded text-xs bg-white"></select></div>
+              <div><label class="text-[10px] font-bold text-slate-500 uppercase">Existing Status</label><input type="text" id="ccrExisting" required class="w-full px-2 py-1 border rounded text-xs"></div>
+              <div><label class="text-[10px] font-bold text-slate-500 uppercase">Proposed Change</label><input type="text" id="ccrProposed" required class="w-full px-2 py-1 border rounded text-xs"></div>
+              <div><label class="text-[10px] font-bold text-slate-500 uppercase">Category</label><select id="ccrCategory" required class="w-full px-2 py-1 border rounded text-xs bg-white"><option value="Process Validation">PV</option><option value="Process Optimization">PO</option><option value="Process Verification">PVR</option></select></div>
+              <div><label class="text-[10px] font-bold text-slate-500 uppercase">Material Dep?</label><select id="ccrMatDep" required class="w-full px-2 py-1 border rounded text-xs bg-white"><option value="Yes">Yes</option><option value="No">No</option></select></div>
+              <div class="md:col-span-4 flex justify-end gap-2 mt-2"><button type="button" onclick="toggleCcrForm(false)" class="px-3 py-1 border rounded text-xs">Cancel</button><button type="submit" class="px-3 py-1 bg-blue-600 text-white rounded text-xs font-bold">Submit</button></div>
+            </form>
+          </div>
+          <div class="card overflow-hidden">
+            <div class="p-3 border-b flex justify-between items-center bg-slate-50">
+              <h3 class="font-bold text-slate-800 text-sm">CCR (R&D) Record List</h3>
+              <div class="flex gap-2"><input type="text" id="ccrSearch" placeholder="Search..." class="px-2 py-1 border rounded text-xs" onkeyup="loadModuleData('ccr', 1)"><button onclick="toggleCcrForm(true)" class="bg-[#1e3a8a] text-white px-3 py-1 rounded text-xs font-bold"><i class="fa-solid fa-plus"></i> New</button></div>
+            </div>
+            <div class="overflow-x-auto max-h-[65vh]">
+              <table><thead><tr><th>S/L No.</th><th>Product Name</th><th>CCR No</th><th>Category</th><th>Action</th></tr></thead><tbody id="ccrTableBody"></tbody></table>
+            </div>
+          </div>
+        </div>
+
+        <!-- WAREHOUSE -->
+        <div id="view-warehouse" class="hidden space-y-4">
+          <div class="card overflow-hidden">
+            <div class="p-3 border-b bg-slate-50"><h3 class="font-bold text-slate-800 text-sm">Warehouse Material Tracking</h3></div>
+            <div class="overflow-x-auto max-h-[65vh]">
+              <table><thead><tr><th>S/L No.</th><th>Product Name</th><th>Category</th><th>Material Status</th><th>Action</th></tr></thead><tbody id="whTableBody"></tbody></table>
+            </div>
+          </div>
+        </div>
+
+        <!-- VALIDATION -->
+        <div id="view-validation" class="hidden space-y-4">
+          <div class="card overflow-hidden">
+            <div class="p-3 border-b bg-slate-50"><h3 class="font-bold text-slate-800 text-sm">Validation Status</h3></div>
+            <div class="overflow-x-auto max-h-[65vh]">
+              <table><thead><tr><th>S/L No.</th><th>Product Name</th><th>Protocol Status</th><th>Execution Status</th><th>Action</th></tr></thead><tbody id="valTableBody"></tbody></table>
+            </div>
+          </div>
+        </div>
+
+        <!-- QA -->
+        <div id="view-qa" class="hidden space-y-4">
+          <div class="card overflow-hidden">
+            <div class="p-3 border-b bg-slate-50"><h3 class="font-bold text-slate-800 text-sm">QA Batch Release</h3></div>
+            <div class="overflow-x-auto max-h-[65vh]">
+              <table><thead><tr><th>S/L No.</th><th>Product Name</th><th>Batch Status</th><th>Release Status</th><th>Action</th></tr></thead><tbody id="qaTableBody"></tbody></table>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </main>
+  </div>
+
+  <script>
+    const SUPABASE_URL = 'https://zvjrbnlmwaigqotlwrlv.supabase.co'; 
+    const SUPABASE_ANON_KEY = 'sb_publishable_-laJfxmOVoe3F3kBtU30tQ_TQRboWCI';
+    const FUNCTIONS_URL = 'https://zvjrbnlmwaigqotlwrlv.supabase.co/functions/v1';
+
+    const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+    let CURRENT_USER = null;
+
+    function showLoading(s) { document.getElementById('loadingSpinner').classList.toggle('hidden', !s); }
+    function showToast(m, t = 'success') { const c = document.getElementById('customAlertContainer'); const e = document.createElement('div'); e.className = `px-4 py-2 rounded shadow-lg text-white font-bold text-xs transform transition-all duration-300 translate-x-full ${t === 'success' ? 'bg-emerald-600' : 'bg-red-600'}`; e.innerHTML = m; c.appendChild(e); setTimeout(() => e.classList.remove('translate-x-full'), 10); setTimeout(() => { e.classList.add('translate-x-full'); setTimeout(() => e.remove(), 300); }, 3000); }
+
+    async function callApi(fn, args) {
+      const { data: { session } } = await supabaseClient.auth.getSession();
+      const res = await fetch(`${FUNCTIONS_URL}/api`, { method: 'POST', headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${session.access_token}` }, body: JSON.stringify({ fn, args }) });
+      const data = await res.json(); if (data.error) throw new Error(data.error); return data;
+    }
+
+    async function executeLogin(e) {
+      e.preventDefault(); showLoading(true);
+      try {
+        const { data: authData, error: authErr } = await supabaseClient.auth.signInWithPassword({ email: document.getElementById('loginEmpId').value.trim().toLowerCase() + '@valicore.com', password: document.getElementById('loginPassword').value.trim() });
+        if (authErr) throw new Error("ভুল তথ্য!");
+        const { data: profile } = await supabaseClient.from('users').select('*').eq('auth_id', authData.user.id).single();
+        
+        CURRENT_USER = profile;
+        document.getElementById('loginPageWrapper').classList.add('hidden');
+        document.getElementById('mainAppWrapper').classList.remove('hidden');
+        document.getElementById('navUserName').innerText = profile.full_name;
+        document.getElementById('navUserRole').innerText = profile.role;
+        document.getElementById('headerWelcomeText').innerText = `Welcome, ${profile.full_name}`;
+        document.getElementById('navAvatar').innerText = profile.team_name.substring(0,3).toUpperCase();
+
+        document.querySelector('.sidebar-link').classList.add('active');
+        document.getElementById('view-dashboard').classList.remove('hidden');
+        loadDashboardData();
+      } catch (err) { showToast(err.message, 'error'); } finally { showLoading(false); }
+    }
+
+    function executeLogout() { supabaseClient.auth.signOut(); location.reload(); }
+
+    function navigateTo(p, btn) {
+      document.querySelectorAll('.sidebar-link').forEach(b => b.classList.remove('active'));
+      if(btn) btn.classList.add('active');
+      document.querySelectorAll('#viewContainer > div').forEach(d => d.classList.add('hidden'));
+      document.getElementById(`view-${p}`).classList.remove('hidden');
+      document.getElementById('pageTitle').innerText = p.toUpperCase();
+      if (p !== 'dashboard') loadModuleData(p, 1);
+    }
+
+    async function loadDashboardData() {
+      try {
+        const rows = JSON.parse(await callApi('fetchFinalSummaryData', []));
+        let m = { matNo: 0, pPending: 0, completed: 0 }, c = { PV: 0, PVR: 0, PO: 0 };
+        rows.forEach(r => {
+          if (r.Category === 'Process Validation') c.PV++; else if (r.Category === 'Process Verification') c.PVR++; else if (r.Category === 'Process Optimization') c.PO++;
+          if (r.MaterialAvailability === 'No') m.matNo++; if (r.ProtocolStatus === 'Pending') m.pPending++; if (r.ExecutionStatus === 'Completed') m.completed++;
+        });
+        document.getElementById('metricMatNeed').innerText = m.matNo;
+        document.getElementById('metricProtoPending').innerText = m.pPending;
+        document.getElementById('metricCompleted').innerText = m.completed;
+        Highcharts.chart('pvStatusChart', { chart: { type: 'column', backgroundColor: 'transparent' }, title: { text: null }, xAxis: { categories: ['Mat', 'Proto'] }, legend: { enabled: false }, series: [{ data: [m.matNo, m.pPending], color: '#ef4444' }] });
+        Highcharts.chart('actionPlanChart', { chart: { type: 'pie', backgroundColor: 'transparent' }, title: { text: null }, series: [{ data: [{name:'PV',y:c.PV,color:'#10b981'}, {name:'PVR',y:c.PVR,color:'#3b82f6'}, {name:'PO',y:c.PO,color:'#f59e0b'}] }] });
+      } catch (e) { console.error(e); }
+    }
+
+    async function loadModuleData(mod, page) {
+      const tb = document.getElementById(mod + 'TableBody'); if(!tb) return;
+      tb.innerHTML = '<tr><td colspan="5" class="text-center py-4">Loading...</td></tr>';
+      try {
+        let rows = [];
+        if(mod === 'ccr') rows = (await callApi('fetchCcrPaged', [{ page }])).rows;
+        else rows = (await callApi('fetchModuleData', [{ module: mod, page }])).rows;
+        
+        if(rows.length === 0) { tb.innerHTML = '<tr><td colspan="5" class="text-center py-4 text-slate-400">No records.</td></tr>'; return; }
+
+        if(mod === 'ccr') tb.innerHTML = rows.map(r => `<tr><td class="font-bold">S/L ${r.CCRSL}</td><td>${r.ProductName}</td><td>${r.CCRNo}</td><td>${r.Category}</td><td><button class="text-blue-600">Edit</button></td></tr>`).join('');
+        if(mod === 'warehouse') tb.innerHTML = rows.map(r => `<tr><td class="font-bold">S/L ${r.CCRSL}</td><td>${r.ProductName}</td><td>${r.Category}</td><td><span class="px-2 py-1 bg-yellow-100 text-yellow-700 rounded text-[10px]">${r.MaterialAvailability || 'Pending'}</span></td><td><button onclick="openForm('wh', ${r.CCRSL})" class="text-blue-600">Update</button></td></tr>`).join('');
+        if(mod === 'validation') tb.innerHTML = rows.map(r => `<tr><td class="font-bold">S/L ${r.CCRSL}</td><td>${r.ProductName}</td><td>${r.ProtocolStatus || 'Pending'}</td><td>${r.ExecutionStatus || 'Pending'}</td><td><button onclick="openForm('val', ${r.CCRSL})" class="text-blue-600">Update</button></td></tr>`).join('');
+        if(mod === 'qa') tb.innerHTML = rows.map(r => `<tr><td class="font-bold">S/L ${r.CCRSL}</td><td>${r.ProductName}</td><td>${r.BatchStatus || 'Pending'}</td><td>${r.ExecutionStatus || 'Pending'}</td><td><button onclick="openForm('qa', ${r.CCRSL})" class="text-blue-600">Update</button></td></tr>`).join('');
+      } catch (e) { tb.innerHTML = `<tr><td colspan="5" class="text-red-500 text-center">${e.message}</td></tr>`; }
+    }
+
+    // কাস্টম প্রম্পট ফর্ম (সিম্পল আপডেটের জন্য)
+    async function openForm(mod, sl) {
+      const val = prompt(`Enter new value for S/L ${sl} (${mod} update):`);
+      if(!val) return;
+      showLoading(true);
+      try {
+        let payload = {};
+        if(mod === 'wh') payload = { material_availability: val };
+        if(mod === 'val') payload = { protocol_status: val };
+        if(mod === 'qa') payload = { final_released_status: val };
+        
+        await callApi('updateModuleData', [{ module: mod, sl, payload }]);
+        showToast('Updated!');
+        loadModuleData(mod, 1);
+      } catch(e) { showToast(e.message, 'error'); } finally { showLoading(false); }
+    }
+
+    function toggleCcrForm(s) { document.getElementById('ccrFormContainer').classList.toggle('hidden', !s); if(s) loadReasons(); }
+    async function loadReasons() { const sel = document.getElementById('ccrReason'); if(sel.options.length > 0) return; const res = await callApi('fetchSystemConfig', []); res.REASON_FOR_CCR.forEach(r => sel.innerHTML += `<option value="${r}">${r}</option>`); }
+    async function submitNewCcr(e) {
+      e.preventDefault(); showLoading(true);
+      try {
+        await callApi('addNewCcrRecord', [{ productName: document.getElementById('ccrName').value, ccrNo: document.getElementById('ccrNo').value, batchSize: document.getElementById('ccrBatch').value, reasonForCcr: document.getElementById('ccrReason').value, existingStatus: document.getElementById('ccrExisting').value, proposedChange: document.getElementById('ccrProposed').value, actionPlan: document.getElementById('ccrCategory').value, materialDependency: document.getElementById('ccrMatDep').value }]);
+        showToast('Saved!'); toggleCcrForm(false); document.getElementById('ccrForm').reset(); loadModuleData('ccr', 1);
+      } catch (err) { showToast(err.message, 'error'); } finally { showLoading(false); }
+    }
+  </script>
+</body>
+</html>
