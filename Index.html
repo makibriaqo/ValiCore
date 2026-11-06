@@ -13,6 +13,7 @@
     * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Plus Jakarta Sans', sans-serif; }
     body { background-color: #f4f7fb; color: #0f172a; height: 100vh; overflow: hidden; font-size: 11.5px; }
     .hidden { display: none !important; }
+    
     .app-wrapper { display: flex; width: 100vw; height: 100vh; overflow: hidden; }
     .sidebar-panel { width: 210px; min-width: 210px; background: linear-gradient(180deg, #1e40af 0%, #0ea5e9 100%); color: #fff; display: flex; flex-direction: column; z-index: 20; }
     .sidebar-link { display: flex; align-items: center; gap: 8px; width: 100%; padding: 8px 10px; color: #fff; border-radius: 6px; font-size: 11.5px; font-weight: 600; transition: 0.2s; margin-bottom: 2px; background: transparent; border: none; cursor: pointer; text-align: left; }
@@ -35,6 +36,12 @@
     td { padding: 8px; border-bottom: 1px solid #e2e8f0; }
     tbody tr:hover { background-color: #f8fafc; }
     
+    /* Drawer Form */
+    .drawer-panel { background: #fff; border-radius: 12px; padding: 20px; border: 1px solid #cbd5e1; box-shadow: 0 10px 25px rgba(0,0,0,0.05); margin-bottom: 20px; }
+    .form-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 12px; }
+    .form-field label { display: block; font-size: 10px; font-weight: 700; color: #475569; text-transform: uppercase; margin-bottom: 4px; }
+    .form-field input, .form-field select { width: 100%; padding: 8px; border: 1px solid #cbd5e1; border-radius: 6px; font-size: 12px; }
+
     .spinner-overlay { position: fixed; inset: 0; background: rgba(15, 23, 42, 0.6); display: flex; align-items: center; justify-content: center; z-index: 10000; }
     .spinner { width: 30px; height: 30px; border: 3px solid #e0f2fe; border-top: 3px solid #0ea5e9; border-radius: 50%; animation: spin 0.8s linear infinite; }
     @keyframes spin { 100% { transform: rotate(360deg); } }
@@ -45,12 +52,10 @@
   <div id="loadingSpinner" class="spinner-overlay hidden"><div class="bg-white p-4 rounded-xl text-center shadow-lg"><div class="spinner mx-auto mb-2"></div><p class="font-bold text-[#1e3a8a]">Processing...</p></div></div>
   <div id="customAlertContainer" class="fixed top-5 right-5 z-[10000] flex flex-col gap-3 pointer-events-none"></div>
 
-  <!-- LOGIN PAGE -->
   <div id="loginPageWrapper">
     <div class="login-left">
       <h1 class="text-7xl font-black text-[#0b307f] tracking-tighter drop-shadow-md"><span class="text-[#0ea5e9]">Vali</span>Core</h1>
       <h2 class="text-2xl font-black text-[#0a2559] mt-4">Total Process Validation Management System</h2>
-      <p class="text-sm font-extrabold text-[#0a2559] tracking-widest mt-2 uppercase">Visibility • Timeliness • Readiness • Monitoring • Control</p>
     </div>
     <div class="login-right">
       <div class="login-card">
@@ -64,9 +69,7 @@
     </div>
   </div>
 
-  <!-- MAIN APP -->
   <div id="mainAppWrapper" class="app-wrapper hidden">
-    <!-- SIDEBAR -->
     <aside class="sidebar-panel">
       <div class="p-4 flex items-center gap-2 border-b border-white/20"><i class="fa-solid fa-shield-halved text-2xl text-white"></i><span class="text-lg font-black tracking-wide text-white">ValiCore</span></div>
       <div class="p-3 m-2 bg-white/10 rounded-lg flex items-center gap-3 border border-white/20">
@@ -83,7 +86,6 @@
       <div class="p-3"><button onclick="executeLogout()" class="w-full bg-red-500/20 text-white hover:bg-red-500/40 py-2 rounded-md font-bold text-xs"><i class="fa-solid fa-right-from-bracket mr-1"></i> Logout</button></div>
     </aside>
 
-    <!-- MAIN CONTENT -->
     <main class="main-content">
       <header class="top-header"><h1 class="text-sm font-extrabold text-[#1e3a8a]" id="pageTitle">Dashboard</h1><span class="text-xs font-bold text-slate-700" id="headerWelcomeText">Welcome</span></header>
       <div class="flex-1 p-4 overflow-y-auto bg-[#f4f7fb]" id="viewContainer">
@@ -103,18 +105,18 @@
 
         <!-- CCR -->
         <div id="view-ccr" class="hidden space-y-4">
-          <div id="ccrFormContainer" class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm hidden mb-4">
+          <div id="ccrFormContainer" class="drawer-panel hidden mb-4">
             <div class="border-b pb-2 mb-3 flex justify-between"><h2 class="text-sm font-bold">New CCR Record</h2><button onclick="toggleCcrForm(false)" class="text-red-500"><i class="fa-solid fa-xmark"></i></button></div>
-            <form id="ccrForm" class="grid grid-cols-1 md:grid-cols-4 gap-3" onsubmit="submitNewCcr(event)">
-              <div><label class="text-[10px] font-bold text-slate-500 uppercase">Product Name</label><input type="text" id="ccrName" required class="w-full px-2 py-1 border rounded text-xs"></div>
-              <div><label class="text-[10px] font-bold text-slate-500 uppercase">CCR No</label><input type="text" id="ccrNo" required value="CCR/U01-" class="w-full px-2 py-1 border rounded text-xs"></div>
-              <div><label class="text-[10px] font-bold text-slate-500 uppercase">Batch Size</label><input type="number" id="ccrBatch" required class="w-full px-2 py-1 border rounded text-xs"></div>
-              <div><label class="text-[10px] font-bold text-slate-500 uppercase">Reason</label><select id="ccrReason" required class="w-full px-2 py-1 border rounded text-xs bg-white"></select></div>
-              <div><label class="text-[10px] font-bold text-slate-500 uppercase">Existing Status</label><input type="text" id="ccrExisting" required class="w-full px-2 py-1 border rounded text-xs"></div>
-              <div><label class="text-[10px] font-bold text-slate-500 uppercase">Proposed Change</label><input type="text" id="ccrProposed" required class="w-full px-2 py-1 border rounded text-xs"></div>
-              <div><label class="text-[10px] font-bold text-slate-500 uppercase">Category</label><select id="ccrCategory" required class="w-full px-2 py-1 border rounded text-xs bg-white"><option value="Process Validation">PV</option><option value="Process Optimization">PO</option><option value="Process Verification">PVR</option></select></div>
-              <div><label class="text-[10px] font-bold text-slate-500 uppercase">Material Dep?</label><select id="ccrMatDep" required class="w-full px-2 py-1 border rounded text-xs bg-white"><option value="Yes">Yes</option><option value="No">No</option></select></div>
-              <div class="md:col-span-4 flex justify-end gap-2 mt-2"><button type="button" onclick="toggleCcrForm(false)" class="px-3 py-1 border rounded text-xs">Cancel</button><button type="submit" class="px-3 py-1 bg-blue-600 text-white rounded text-xs font-bold">Submit</button></div>
+            <form id="ccrForm" class="form-grid" onsubmit="submitNewCcr(event)">
+              <div class="form-field"><label>Product Name</label><input type="text" id="ccrName" required></div>
+              <div class="form-field"><label>CCR No</label><input type="text" id="ccrNo" required value="CCR/U01-"></div>
+              <div class="form-field"><label>Batch Size</label><input type="number" id="ccrBatch" required></div>
+              <div class="form-field"><label>Reason</label><select id="ccrReason" required></select></div>
+              <div class="form-field"><label>Existing Status</label><input type="text" id="ccrExisting" required></div>
+              <div class="form-field"><label>Proposed Change</label><input type="text" id="ccrProposed" required></div>
+              <div class="form-field"><label>Category</label><select id="ccrCategory" required><option value="Process Validation">PV</option><option value="Process Optimization">PO</option><option value="Process Verification">PVR</option></select></div>
+              <div class="form-field"><label>Material Dep?</label><select id="ccrMatDep" required><option value="Yes">Yes</option><option value="No">No</option></select></div>
+              <div class="col-span-full flex justify-end gap-2 mt-2"><button type="button" onclick="toggleCcrForm(false)" class="px-3 py-1 border rounded text-xs">Cancel</button><button type="submit" class="px-3 py-1 bg-blue-600 text-white rounded text-xs font-bold">Submit</button></div>
             </form>
           </div>
           <div class="card overflow-hidden">
@@ -122,39 +124,73 @@
               <h3 class="font-bold text-slate-800 text-sm">CCR (R&D) Record List</h3>
               <div class="flex gap-2"><input type="text" id="ccrSearch" placeholder="Search..." class="px-2 py-1 border rounded text-xs" onkeyup="loadModuleData('ccr', 1)"><button onclick="toggleCcrForm(true)" class="bg-[#1e3a8a] text-white px-3 py-1 rounded text-xs font-bold"><i class="fa-solid fa-plus"></i> New</button></div>
             </div>
-            <div class="overflow-x-auto max-h-[65vh]">
-              <table><thead><tr><th>S/L No.</th><th>Product Name</th><th>CCR No</th><th>Category</th><th>Action</th></tr></thead><tbody id="ccrTableBody"></tbody></table>
-            </div>
+            <div class="overflow-x-auto max-h-[65vh]"><table><thead><tr><th>S/L No.</th><th>Product Name</th><th>CCR No</th><th>Category</th><th>Action</th></tr></thead><tbody id="ccrTableBody"></tbody></table></div>
           </div>
         </div>
 
         <!-- WAREHOUSE -->
         <div id="view-warehouse" class="hidden space-y-4">
+          <div id="whFormContainer" class="drawer-panel hidden mb-4">
+            <h2 class="text-sm font-bold border-b pb-2 mb-3">Update Warehouse Data (S/L <span id="whSlDisplay"></span>)</h2>
+            <form id="whForm" class="form-grid" onsubmit="submitWhForm(event)">
+              <input type="hidden" id="whSl">
+              <div class="form-field"><label>Material Category</label><select id="whCat"><option value="RM">RM</option><option value="PM">PM</option></select></div>
+              <div class="form-field"><label>Availability</label><select id="whAvail"><option value="Yes">Yes</option><option value="No">No</option></select></div>
+              <div class="form-field"><label>Material Details</label><input type="text" id="whDetails"></div>
+              <div class="form-field"><label>Available Date</label><input type="date" id="whDate"></div>
+              <div class="form-field col-span-full"><label>Remarks</label><input type="text" id="whRemarks"></div>
+              <div class="col-span-full flex justify-end gap-2 mt-2"><button type="button" onclick="document.getElementById('whFormContainer').classList.add('hidden')" class="px-3 py-1 border rounded text-xs">Cancel</button><button type="submit" class="px-3 py-1 bg-blue-600 text-white rounded text-xs font-bold">Save</button></div>
+            </form>
+          </div>
           <div class="card overflow-hidden">
             <div class="p-3 border-b bg-slate-50"><h3 class="font-bold text-slate-800 text-sm">Warehouse Material Tracking</h3></div>
-            <div class="overflow-x-auto max-h-[65vh]">
-              <table><thead><tr><th>S/L No.</th><th>Product Name</th><th>Category</th><th>Material Status</th><th>Action</th></tr></thead><tbody id="whTableBody"></tbody></table>
-            </div>
+            <div class="overflow-x-auto max-h-[65vh]"><table><thead><tr><th>S/L No.</th><th>Product Name</th><th>Category</th><th>Material Status</th><th>Action</th></tr></thead><tbody id="whTableBody"></tbody></table></div>
           </div>
         </div>
 
         <!-- VALIDATION -->
         <div id="view-validation" class="hidden space-y-4">
+          <div id="valFormContainer" class="drawer-panel hidden mb-4">
+            <h2 class="text-sm font-bold border-b pb-2 mb-3">Update Validation (S/L <span id="valSlDisplay"></span>)</h2>
+            <form id="valForm" class="form-grid" onsubmit="submitValForm(event)">
+              <input type="hidden" id="valSl">
+              <div class="form-field"><label>Protocol No</label><input type="text" id="valProtoNo"></div>
+              <div class="form-field"><label>Protocol Approval Date</label><input type="date" id="valProtoDate"></div>
+              <div class="form-field"><label>Final Report Approval Date</label><input type="date" id="valReportDate"></div>
+              <div class="form-field"><label>Remarks</label><input type="text" id="valRemarks"></div>
+              <div class="col-span-full flex justify-end gap-2 mt-2"><button type="button" onclick="document.getElementById('valFormContainer').classList.add('hidden')" class="px-3 py-1 border rounded text-xs">Cancel</button><button type="submit" class="px-3 py-1 bg-blue-600 text-white rounded text-xs font-bold">Save</button></div>
+            </form>
+          </div>
           <div class="card overflow-hidden">
             <div class="p-3 border-b bg-slate-50"><h3 class="font-bold text-slate-800 text-sm">Validation Status</h3></div>
-            <div class="overflow-x-auto max-h-[65vh]">
-              <table><thead><tr><th>S/L No.</th><th>Product Name</th><th>Protocol Status</th><th>Execution Status</th><th>Action</th></tr></thead><tbody id="valTableBody"></tbody></table>
-            </div>
+            <div class="overflow-x-auto max-h-[65vh]"><table><thead><tr><th>S/L No.</th><th>Product Name</th><th>Protocol Status</th><th>Execution Status</th><th>Action</th></tr></thead><tbody id="validationTableBody"></tbody></table></div>
           </div>
         </div>
 
         <!-- QA -->
         <div id="view-qa" class="hidden space-y-4">
+          <div id="qaFormContainer" class="drawer-panel hidden mb-4">
+            <h2 class="text-sm font-bold border-b pb-2 mb-3">Update QA Batches (S/L <span id="qaSlDisplay"></span>)</h2>
+            <form id="qaForm" class="form-grid" onsubmit="submitQaForm(event)">
+              <input type="hidden" id="qaSl">
+              <div class="form-field"><label>Batch 1 No</label><input type="text" id="qaB1No"></div>
+              <div class="form-field"><label>Batch 1 Issue</label><input type="date" id="qaB1Iss"></div>
+              <div class="form-field"><label>Batch 1 Release</label><input type="date" id="qaB1Rel"></div>
+              
+              <div class="form-field"><label>Batch 2 No</label><input type="text" id="qaB2No"></div>
+              <div class="form-field"><label>Batch 2 Issue</label><input type="date" id="qaB2Iss"></div>
+              <div class="form-field"><label>Batch 2 Release</label><input type="date" id="qaB2Rel"></div>
+
+              <div class="form-field"><label>Batch 3 No</label><input type="text" id="qaB3No"></div>
+              <div class="form-field"><label>Batch 3 Issue</label><input type="date" id="qaB3Iss"></div>
+              <div class="form-field"><label>Batch 3 Release</label><input type="date" id="qaB3Rel"></div>
+              
+              <div class="col-span-full flex justify-end gap-2 mt-2"><button type="button" onclick="document.getElementById('qaFormContainer').classList.add('hidden')" class="px-3 py-1 border rounded text-xs">Cancel</button><button type="submit" class="px-3 py-1 bg-blue-600 text-white rounded text-xs font-bold">Save</button></div>
+            </form>
+          </div>
           <div class="card overflow-hidden">
             <div class="p-3 border-b bg-slate-50"><h3 class="font-bold text-slate-800 text-sm">QA Batch Release</h3></div>
-            <div class="overflow-x-auto max-h-[65vh]">
-              <table><thead><tr><th>S/L No.</th><th>Product Name</th><th>Batch Status</th><th>Release Status</th><th>Action</th></tr></thead><tbody id="qaTableBody"></tbody></table>
-            </div>
+            <div class="overflow-x-auto max-h-[65vh]"><table><thead><tr><th>S/L No.</th><th>Product Name</th><th>Batch Status</th><th>Release Status</th><th>Action</th></tr></thead><tbody id="qaTableBody"></tbody></table></div>
           </div>
         </div>
 
@@ -169,6 +205,7 @@
 
     const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
     let CURRENT_USER = null;
+    let CURRENT_DATA = []; // পেজের ডেটা ক্যাশ
 
     function showLoading(s) { document.getElementById('loadingSpinner').classList.toggle('hidden', !s); }
     function showToast(m, t = 'success') { const c = document.getElementById('customAlertContainer'); const e = document.createElement('div'); e.className = `px-4 py-2 rounded shadow-lg text-white font-bold text-xs transform transition-all duration-300 translate-x-full ${t === 'success' ? 'bg-emerald-600' : 'bg-red-600'}`; e.innerHTML = m; c.appendChild(e); setTimeout(() => e.classList.remove('translate-x-full'), 10); setTimeout(() => { e.classList.add('translate-x-full'); setTimeout(() => e.remove(), 300); }, 3000); }
@@ -233,34 +270,78 @@
       try {
         let rows = [];
         if(mod === 'ccr') rows = (await callApi('fetchCcrPaged', [{ page }])).rows;
-        else rows = (await callApi('fetchModuleData', [{ module: mod, page }])).rows;
+        else {
+           const res = await callApi('fetchModuleData', [{ module: mod, page }]);
+           rows = res.rows;
+        }
+        CURRENT_DATA = rows; // সেভ করে রাখলাম ফর্মে পপুলেট করার জন্য
         
         if(rows.length === 0) { tb.innerHTML = '<tr><td colspan="5" class="text-center py-4 text-slate-400">No records.</td></tr>'; return; }
 
         if(mod === 'ccr') tb.innerHTML = rows.map(r => `<tr><td class="font-bold">S/L ${r.CCRSL}</td><td>${r.ProductName}</td><td>${r.CCRNo}</td><td>${r.Category}</td><td><button class="text-blue-600">Edit</button></td></tr>`).join('');
-        if(mod === 'warehouse') tb.innerHTML = rows.map(r => `<tr><td class="font-bold">S/L ${r.CCRSL}</td><td>${r.ProductName}</td><td>${r.Category}</td><td><span class="px-2 py-1 bg-yellow-100 text-yellow-700 rounded text-[10px]">${r.MaterialAvailability || 'Pending'}</span></td><td><button onclick="openForm('wh', ${r.CCRSL})" class="text-blue-600">Update</button></td></tr>`).join('');
-        if(mod === 'validation') tb.innerHTML = rows.map(r => `<tr><td class="font-bold">S/L ${r.CCRSL}</td><td>${r.ProductName}</td><td>${r.ProtocolStatus || 'Pending'}</td><td>${r.ExecutionStatus || 'Pending'}</td><td><button onclick="openForm('val', ${r.CCRSL})" class="text-blue-600">Update</button></td></tr>`).join('');
-        if(mod === 'qa') tb.innerHTML = rows.map(r => `<tr><td class="font-bold">S/L ${r.CCRSL}</td><td>${r.ProductName}</td><td>${r.BatchStatus || 'Pending'}</td><td>${r.ExecutionStatus || 'Pending'}</td><td><button onclick="openForm('qa', ${r.CCRSL})" class="text-blue-600">Update</button></td></tr>`).join('');
+        if(mod === 'warehouse') tb.innerHTML = rows.map(r => `<tr><td class="font-bold">S/L ${r.CCRSL}</td><td>${r.ProductName}</td><td>${r.Category}</td><td><span class="px-2 py-1 bg-yellow-100 text-yellow-700 rounded text-[10px]">${r.MaterialAvailability || 'Pending'}</span></td><td><button onclick="openWhForm(${r.CCRSL})" class="text-blue-600 font-bold hover:underline">Update</button></td></tr>`).join('');
+        if(mod === 'validation') tb.innerHTML = rows.map(r => `<tr><td class="font-bold">S/L ${r.CCRSL}</td><td>${r.ProductName}</td><td>${r.ProtocolStatus || 'Pending'}</td><td>${r.ExecutionStatus || 'Pending'}</td><td><button onclick="openValForm(${r.CCRSL})" class="text-blue-600 font-bold hover:underline">Update</button></td></tr>`).join('');
+        if(mod === 'qa') tb.innerHTML = rows.map(r => `<tr><td class="font-bold">S/L ${r.CCRSL}</td><td>${r.ProductName}</td><td>${r.BatchStatus || 'Pending'}</td><td>${r.ExecutionStatus || 'Pending'}</td><td><button onclick="openQaForm(${r.CCRSL})" class="text-blue-600 font-bold hover:underline">Update</button></td></tr>`).join('');
       } catch (e) { tb.innerHTML = `<tr><td colspan="5" class="text-red-500 text-center">${e.message}</td></tr>`; }
     }
 
-    // কাস্টম প্রম্পট ফর্ম (সিম্পল আপডেটের জন্য)
-    async function openForm(mod, sl) {
-      const val = prompt(`Enter new value for S/L ${sl} (${mod} update):`);
-      if(!val) return;
-      showLoading(true);
-      try {
-        let payload = {};
-        if(mod === 'wh') payload = { material_availability: val };
-        if(mod === 'val') payload = { protocol_status: val };
-        if(mod === 'qa') payload = { final_released_status: val };
-        
-        await callApi('updateModuleData', [{ module: mod, sl, payload }]);
-        showToast('Updated!');
-        loadModuleData(mod, 1);
-      } catch(e) { showToast(e.message, 'error'); } finally { showLoading(false); }
+    // --- ফর্ম ওপেন করার ফাংশন ---
+    function openWhForm(sl) {
+      const row = CURRENT_DATA.find(r => r.CCRSL === sl); if(!row) return;
+      document.getElementById('whSl').value = sl;
+      document.getElementById('whSlDisplay').innerText = sl;
+      document.getElementById('whCat').value = row.MaterialCategory || 'RM';
+      document.getElementById('whAvail').value = row.MaterialAvailability || 'No';
+      document.getElementById('whDetails').value = row.MaterialDetails || '';
+      document.getElementById('whDate').value = row.AvailableDate || '';
+      document.getElementById('whRemarks').value = row.WarehouseRemarks || '';
+      document.getElementById('whFormContainer').classList.remove('hidden');
+    }
+    function openValForm(sl) {
+      const row = CURRENT_DATA.find(r => r.CCRSL === sl); if(!row) return;
+      document.getElementById('valSl').value = sl;
+      document.getElementById('valSlDisplay').innerText = sl;
+      document.getElementById('valProtoNo').value = row.ProtocolNo || '';
+      document.getElementById('valProtoDate').value = row.ProtocolApprovalDate || '';
+      document.getElementById('valReportDate').value = row.FinalReportApprovalDate || '';
+      document.getElementById('valRemarks').value = row.ValidationRemarks || '';
+      document.getElementById('valFormContainer').classList.remove('hidden');
+    }
+    function openQaForm(sl) {
+      const row = CURRENT_DATA.find(r => r.CCRSL === sl); if(!row) return;
+      document.getElementById('qaSl').value = sl;
+      document.getElementById('qaSlDisplay').innerText = sl;
+      document.getElementById('qaB1No').value = row.BatchNo1 || ''; document.getElementById('qaB1Iss').value = row.Batch1IssueDate || ''; document.getElementById('qaB1Rel').value = row.Batch1FinalReleaseDate || '';
+      document.getElementById('qaB2No').value = row.BatchNo2 || ''; document.getElementById('qaB2Iss').value = row.Batch2IssueDate || ''; document.getElementById('qaB2Rel').value = row.Batch2FinalReleaseDate || '';
+      document.getElementById('qaB3No').value = row.BatchNo3 || ''; document.getElementById('qaB3Iss').value = row.Batch3IssueDate || ''; document.getElementById('qaB3Rel').value = row.Batch3FinalReleaseDate || '';
+      document.getElementById('qaFormContainer').classList.remove('hidden');
     }
 
+    // --- ফর্ম সাবমিট করার ফাংশন ---
+    async function submitWhForm(e) {
+      e.preventDefault(); showLoading(true);
+      const sl = parseInt(document.getElementById('whSl').value);
+      const payload = { material_category: document.getElementById('whCat').value, material_availability: document.getElementById('whAvail').value, material_details: document.getElementById('whDetails').value, available_date: document.getElementById('whDate').value || null, remarks: document.getElementById('whRemarks').value };
+      try { await callApi('updateModuleData', [{ module: 'warehouse', sl, payload }]); showToast('Saved!'); document.getElementById('whFormContainer').classList.add('hidden'); loadModuleData('warehouse'); } catch(e) { showToast(e.message, 'error'); } finally { showLoading(false); }
+    }
+    async function submitValForm(e) {
+      e.preventDefault(); showLoading(true);
+      const sl = parseInt(document.getElementById('valSl').value);
+      const payload = { protocol_no: document.getElementById('valProtoNo').value, protocol_approval_date: document.getElementById('valProtoDate').value || null, final_report_approval_date: document.getElementById('valReportDate').value || null, remarks: document.getElementById('valRemarks').value };
+      try { await callApi('updateModuleData', [{ module: 'validation', sl, payload }]); showToast('Saved!'); document.getElementById('valFormContainer').classList.add('hidden'); loadModuleData('validation'); } catch(e) { showToast(e.message, 'error'); } finally { showLoading(false); }
+    }
+    async function submitQaForm(e) {
+      e.preventDefault(); showLoading(true);
+      const sl = parseInt(document.getElementById('qaSl').value);
+      const payload = { 
+        batch_no_1: document.getElementById('qaB1No').value, batch_1_issue_date: document.getElementById('qaB1Iss').value || null, batch_1_final_release_date: document.getElementById('qaB1Rel').value || null,
+        batch_no_2: document.getElementById('qaB2No').value, batch_2_issue_date: document.getElementById('qaB2Iss').value || null, batch_2_final_release_date: document.getElementById('qaB2Rel').value || null,
+        batch_no_3: document.getElementById('qaB3No').value, batch_3_issue_date: document.getElementById('qaB3Iss').value || null, batch_3_final_release_date: document.getElementById('qaB3Rel').value || null
+      };
+      try { await callApi('updateModuleData', [{ module: 'qa', sl, payload }]); showToast('Saved!'); document.getElementById('qaFormContainer').classList.add('hidden'); loadModuleData('qa'); } catch(e) { showToast(e.message, 'error'); } finally { showLoading(false); }
+    }
+
+    // --- CCR ফর্ম ---
     function toggleCcrForm(s) { document.getElementById('ccrFormContainer').classList.toggle('hidden', !s); if(s) loadReasons(); }
     async function loadReasons() { const sel = document.getElementById('ccrReason'); if(sel.options.length > 0) return; const res = await callApi('fetchSystemConfig', []); res.REASON_FOR_CCR.forEach(r => sel.innerHTML += `<option value="${r}">${r}</option>`); }
     async function submitNewCcr(e) {
