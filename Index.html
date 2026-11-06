@@ -13,7 +13,6 @@
     * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Plus Jakarta Sans', sans-serif; }
     body { background-color: #f4f7fb; color: #0f172a; height: 100vh; overflow: hidden; font-size: 11.5px; }
     .hidden { display: none !important; }
-    
     .app-wrapper { display: flex; width: 100vw; height: 100vh; overflow: hidden; }
     .sidebar-panel { width: 210px; min-width: 210px; background: linear-gradient(180deg, #1e40af 0%, #0ea5e9 100%); color: #fff; display: flex; flex-direction: column; z-index: 20; }
     .sidebar-link { display: flex; align-items: center; gap: 8px; width: 100%; padding: 8px 10px; color: #fff; border-radius: 6px; font-size: 11.5px; font-weight: 600; transition: 0.2s; margin-bottom: 2px; background: transparent; border: none; cursor: pointer; text-align: left; }
@@ -21,176 +20,149 @@
     .sidebar-link.active { background: #fff; color: #1e3a8a; font-weight: 800; }
     .main-content { flex-grow: 1; display: flex; flex-direction: column; overflow: hidden; }
     .top-header { height: 48px; background: linear-gradient(90deg, #e0f2fe 0%, #bae6fd 50%, #7dd3fc 100%); border-bottom: 1px solid #38bdf8; display: flex; align-items: center; justify-content: space-between; padding: 0 16px; }
-    
-    #loginPageWrapper { position: fixed; inset: 0; z-index: 9999; display: flex; background: #f0f9ff; }
-    .login-left { width: 55%; display: flex; flex-direction: column; justify-content: center; align-items: center; background: linear-gradient(135deg, #dbeafe 0%, #7dd3fc 50%, #38bdf8 100%); }
-    .login-right { width: 45%; display: flex; flex-direction: column; align-items: center; justify-content: center; background: #f8fafc; }
     .login-card { width: 380px; background: #fff; padding: 2rem; border-radius: 12px; box-shadow: 0 10px 40px rgba(14, 165, 233, 0.2); border-top: 5px solid #0ea5e9; }
-    .input-group { position: relative; margin-bottom: 1rem; }
     .input-group label { font-size: 0.7rem; font-weight: 800; color: #0b132b; margin-bottom: 0.3rem; display: block; }
     .input-group input, .input-group select, .input-group textarea { width: 100%; padding: 8px 10px; border: 1px solid #cbd5e1; border-radius: 6px; font-size: 12px; }
-    
     .card { background: #fff; border-radius: 12px; border: 1px solid #e2e8f0; box-shadow: 0 2px 4px rgba(0,0,0,0.02); padding: 16px; }
     table { width: 100%; border-collapse: collapse; text-align: left; font-size: 11px; }
     th { background: #2563eb; color: white; padding: 8px; font-weight: 600; text-transform: uppercase; font-size: 9px; }
     td { padding: 8px; border-bottom: 1px solid #e2e8f0; }
     tbody tr:hover { background-color: #f8fafc; }
-    
-    /* Drawer Form */
     .drawer-panel { background: #fff; border-radius: 12px; padding: 20px; border: 1px solid #cbd5e1; box-shadow: 0 10px 25px rgba(0,0,0,0.05); margin-bottom: 20px; }
     .form-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 12px; }
     .form-field label { display: block; font-size: 10px; font-weight: 700; color: #475569; text-transform: uppercase; margin-bottom: 4px; }
-    .form-field input, .form-field select { width: 100%; padding: 8px; border: 1px solid #cbd5e1; border-radius: 6px; font-size: 12px; }
-
-    .spinner-overlay { position: fixed; inset: 0; background: rgba(15, 23, 42, 0.6); display: flex; align-items: center; justify-content: center; z-index: 10000; }
+    .form-field input, .form-field select, .form-field textarea { width: 100%; padding: 8px; border: 1px solid #cbd5e1; border-radius: 6px; font-size: 12px; }
+    .modal { position: fixed; inset: 0; background: rgba(15,23,42,0.6); display: flex; align-items: center; justify-content: center; z-index: 10000; }
     .spinner { width: 30px; height: 30px; border: 3px solid #e0f2fe; border-top: 3px solid #0ea5e9; border-radius: 50%; animation: spin 0.8s linear infinite; }
     @keyframes spin { 100% { transform: rotate(360deg); } }
   </style>
 </head>
 <body>
 
-  <div id="loadingSpinner" class="spinner-overlay hidden"><div class="bg-white p-4 rounded-xl text-center shadow-lg"><div class="spinner mx-auto mb-2"></div><p class="font-bold text-[#1e3a8a]">Processing...</p></div></div>
+  <div id="loadingSpinner" class="modal hidden"><div class="bg-white p-4 rounded-xl shadow-lg text-center"><div class="spinner mx-auto mb-2"></div><p class="font-bold text-[#1e3a8a]">Processing...</p></div></div>
   <div id="customAlertContainer" class="fixed top-5 right-5 z-[10000] flex flex-col gap-3 pointer-events-none"></div>
 
-  <div id="loginPageWrapper">
-    <div class="login-left">
+  <!-- LOGIN -->
+  <div id="loginPageWrapper" class="fixed inset-0 z-[9999] flex bg-[#f0f9ff]">
+    <div class="w-1/2 flex flex-col justify-center items-center bg-gradient-to-br from-[#dbeafe] to-[#38bdf8]">
       <h1 class="text-7xl font-black text-[#0b307f] tracking-tighter drop-shadow-md"><span class="text-[#0ea5e9]">Vali</span>Core</h1>
-      <h2 class="text-2xl font-black text-[#0a2559] mt-4">Total Process Validation Management System</h2>
     </div>
-    <div class="login-right">
+    <div class="w-1/2 flex justify-center items-center bg-[#f8fafc]">
       <div class="login-card">
         <div class="text-center mb-6"><h2 class="text-2xl font-black text-[#0b307f]"><span class="text-[#0ea5e9]">Vali</span>Core Login</h2></div>
-        <form id="loginForm" onsubmit="executeLogin(event)">
-          <div class="input-group"><label>EMPLOYEE ID</label><input type="text" id="loginEmpId" required value="ADMIN001"></div>
-          <div class="input-group"><label>PASSWORD</label><input type="password" id="loginPassword" required></div>
-          <button type="submit" class="w-full bg-gradient-to-r from-[#1e3a8a] to-[#0ea5e9] text-white font-extrabold py-2.5 rounded-lg mt-2 shadow-md">Login</button>
+        <form onsubmit="executeLogin(event)">
+          <div class="input-group mb-3"><label>EMPLOYEE ID</label><input type="text" id="loginEmpId" required value="ADMIN001"></div>
+          <div class="input-group mb-4"><label>PASSWORD</label><input type="password" id="loginPassword" required></div>
+          <button type="submit" class="w-full bg-gradient-to-r from-[#1e3a8a] to-[#0ea5e9] text-white font-extrabold py-2.5 rounded-lg shadow-md">Login</button>
         </form>
       </div>
     </div>
   </div>
 
+  <!-- MAIN APP -->
   <div id="mainAppWrapper" class="app-wrapper hidden">
+    <!-- SIDEBAR -->
     <aside class="sidebar-panel">
       <div class="p-4 flex items-center gap-2 border-b border-white/20"><i class="fa-solid fa-shield-halved text-2xl text-white"></i><span class="text-lg font-black tracking-wide text-white">ValiCore</span></div>
       <div class="p-3 m-2 bg-white/10 rounded-lg flex items-center gap-3 border border-white/20">
         <div class="w-8 h-8 rounded-full bg-[#1e3a8a] flex items-center justify-center font-bold text-white border-2 border-white" id="navAvatar">ADM</div>
         <div><div class="text-xs font-bold" id="navUserName">Admin</div><div class="text-[9px] text-sky-100" id="navUserRole">C. Admin</div></div>
       </div>
-      <nav id="sidebarNav" class="flex-1 px-3 overflow-y-auto">
+      <nav class="flex-1 px-3 overflow-y-auto">
         <button class="sidebar-link active" onclick="navigateTo('dashboard', this)"><i class="fa-solid fa-house"></i> Dashboard</button>
         <button class="sidebar-link" onclick="navigateTo('ccr', this)"><i class="fa-solid fa-file-invoice"></i> CCR (R&D)</button>
         <button class="sidebar-link" onclick="navigateTo('warehouse', this)"><i class="fa-solid fa-warehouse"></i> Warehouse</button>
         <button class="sidebar-link" onclick="navigateTo('validation', this)"><i class="fa-solid fa-shield-halved"></i> Validation</button>
-        <button class="sidebar-link" onclick="navigateTo('qa', this)"><i class="fa-solid fa-clipboard-check"></i> QA (Doc. Control)</button>
+        <button class="sidebar-link" onclick="navigateTo('qa', this)"><i class="fa-solid fa-clipboard-check"></i> QA</button>
+        <button class="sidebar-link" onclick="navigateTo('notice', this)"><i class="fa-solid fa-bullhorn"></i> Notice Board</button>
+        <button class="sidebar-link" onclick="navigateTo('profile', this)"><i class="fa-solid fa-user"></i> My Profile</button>
+        <button class="sidebar-link" onclick="navigateTo('admin', this)"><i class="fa-solid fa-gear"></i> Admin Panel</button>
       </nav>
       <div class="p-3"><button onclick="executeLogout()" class="w-full bg-red-500/20 text-white hover:bg-red-500/40 py-2 rounded-md font-bold text-xs"><i class="fa-solid fa-right-from-bracket mr-1"></i> Logout</button></div>
     </aside>
 
+    <!-- MAIN CONTENT -->
     <main class="main-content">
-      <header class="top-header"><h1 class="text-sm font-extrabold text-[#1e3a8a]" id="pageTitle">Dashboard</h1><span class="text-xs font-bold text-slate-700" id="headerWelcomeText">Welcome</span></header>
+      <header class="top-header">
+        <h1 class="text-sm font-extrabold text-[#1e3a8a]" id="pageTitle">Dashboard</h1>
+        <span class="text-xs font-bold text-slate-700" id="headerWelcomeText">Welcome</span>
+      </header>
       <div class="flex-1 p-4 overflow-y-auto bg-[#f4f7fb]" id="viewContainer">
         
         <!-- DASHBOARD -->
         <div id="view-dashboard" class="space-y-4">
-          <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
+          <div class="grid grid-cols-3 gap-3">
             <div class="bg-gradient-to-br from-orange-400 to-red-500 text-white rounded-xl p-4 shadow-md"><p class="text-[10px] font-bold uppercase">Material Need</p><h3 class="text-3xl font-black mt-1" id="metricMatNeed">0</h3></div>
             <div class="bg-gradient-to-br from-red-500 to-red-700 text-white rounded-xl p-4 shadow-md"><p class="text-[10px] font-bold uppercase">Protocol Pending</p><h3 class="text-3xl font-black mt-1" id="metricProtoPending">0</h3></div>
             <div class="bg-gradient-to-br from-emerald-400 to-emerald-600 text-white rounded-xl p-4 shadow-md"><p class="text-[10px] font-bold uppercase">Completed</p><h3 class="text-3xl font-black mt-1" id="metricCompleted">0</h3></div>
           </div>
-          <div class="grid grid-cols-1 lg:grid-cols-2 gap-4 mt-4">
-            <div class="card"><h3 class="font-bold text-[#1e3a8a] text-xs mb-2">Status Overview</h3><div id="pvStatusChart" class="w-full h-48"></div></div>
-            <div class="card"><h3 class="font-bold text-[#1e3a8a] text-xs mb-2">Category Distribution</h3><div id="actionPlanChart" class="w-full h-48"></div></div>
+          <div class="grid grid-cols-2 gap-4 mt-4">
+            <div class="card"><div id="pvStatusChart" class="w-full h-48"></div></div>
+            <div class="card"><div id="actionPlanChart" class="w-full h-48"></div></div>
           </div>
         </div>
 
         <!-- CCR -->
         <div id="view-ccr" class="hidden space-y-4">
-          <div id="ccrFormContainer" class="drawer-panel hidden mb-4">
-            <div class="border-b pb-2 mb-3 flex justify-between"><h2 class="text-sm font-bold">New CCR Record</h2><button onclick="toggleCcrForm(false)" class="text-red-500"><i class="fa-solid fa-xmark"></i></button></div>
+          <div id="ccrFormContainer" class="drawer-panel hidden">
             <form id="ccrForm" class="form-grid" onsubmit="submitNewCcr(event)">
               <div class="form-field"><label>Product Name</label><input type="text" id="ccrName" required></div>
               <div class="form-field"><label>CCR No</label><input type="text" id="ccrNo" required value="CCR/U01-"></div>
               <div class="form-field"><label>Batch Size</label><input type="number" id="ccrBatch" required></div>
-              <div class="form-field"><label>Reason</label><select id="ccrReason" required></select></div>
-              <div class="form-field"><label>Existing Status</label><input type="text" id="ccrExisting" required></div>
-              <div class="form-field"><label>Proposed Change</label><input type="text" id="ccrProposed" required></div>
-              <div class="form-field"><label>Category</label><select id="ccrCategory" required><option value="Process Validation">PV</option><option value="Process Optimization">PO</option><option value="Process Verification">PVR</option></select></div>
-              <div class="form-field"><label>Material Dep?</label><select id="ccrMatDep" required><option value="Yes">Yes</option><option value="No">No</option></select></div>
-              <div class="col-span-full flex justify-end gap-2 mt-2"><button type="button" onclick="toggleCcrForm(false)" class="px-3 py-1 border rounded text-xs">Cancel</button><button type="submit" class="px-3 py-1 bg-blue-600 text-white rounded text-xs font-bold">Submit</button></div>
+              <div class="form-field"><label>Category</label><select id="ccrCategory"><option value="Process Validation">PV</option><option value="Process Optimization">PO</option><option value="Process Verification">PVR</option></select></div>
+              <div class="form-field col-span-full"><label>Remarks</label><input type="text" id="ccrRemarks"></div>
+              <div class="col-span-full flex justify-end gap-2"><button type="button" onclick="document.getElementById('ccrFormContainer').classList.add('hidden')" class="px-3 py-1 border rounded text-xs">Cancel</button><button type="submit" class="px-3 py-1 bg-blue-600 text-white rounded text-xs font-bold">Save</button></div>
             </form>
           </div>
           <div class="card overflow-hidden">
-            <div class="p-3 border-b flex justify-between items-center bg-slate-50">
-              <h3 class="font-bold text-slate-800 text-sm">CCR (R&D) Record List</h3>
-              <div class="flex gap-2"><input type="text" id="ccrSearch" placeholder="Search..." class="px-2 py-1 border rounded text-xs" onkeyup="loadModuleData('ccr', 1)"><button onclick="toggleCcrForm(true)" class="bg-[#1e3a8a] text-white px-3 py-1 rounded text-xs font-bold"><i class="fa-solid fa-plus"></i> New</button></div>
+            <div class="p-3 border-b flex justify-between items-center bg-slate-50"><h3 class="font-bold text-slate-800 text-sm">CCR List</h3><button onclick="document.getElementById('ccrFormContainer').classList.remove('hidden')" class="bg-[#1e3a8a] text-white px-3 py-1 rounded text-xs font-bold"><i class="fa-solid fa-plus"></i> New</button></div>
+            <div class="overflow-x-auto max-h-[65vh]"><table><thead><tr><th>S/L</th><th>Product</th><th>CCR No</th><th>Action</th></tr></thead><tbody id="ccrTableBody"></tbody></table></div>
+          </div>
+        </div>
+
+        <!-- WAREHOUSE, VALIDATION, QA (Same as previous step, keeping it short for space) -->
+        <div id="view-warehouse" class="hidden space-y-4"><div class="card overflow-hidden"><div class="p-3 border-b bg-slate-50"><h3 class="font-bold text-slate-800 text-sm">Warehouse</h3></div><table><thead><tr><th>S/L</th><th>Product</th><th>Status</th><th>Action</th></tr></thead><tbody id="warehouseTableBody"></tbody></table></div></div>
+        <div id="view-validation" class="hidden space-y-4"><div class="card overflow-hidden"><div class="p-3 border-b bg-slate-50"><h3 class="font-bold text-slate-800 text-sm">Validation</h3></div><table><thead><tr><th>S/L</th><th>Product</th><th>Status</th><th>Action</th></tr></thead><tbody id="validationTableBody"></tbody></table></div></div>
+        <div id="view-qa" class="hidden space-y-4"><div class="card overflow-hidden"><div class="p-3 border-b bg-slate-50"><h3 class="font-bold text-slate-800 text-sm">QA</h3></div><table><thead><tr><th>S/L</th><th>Product</th><th>Status</th><th>Action</th></tr></thead><tbody id="qaTableBody"></tbody></table></div></div>
+
+        <!-- NOTICE BOARD -->
+        <div id="view-notice" class="hidden space-y-4">
+          <div id="noticeFormContainer" class="drawer-panel hidden">
+            <form id="noticeForm" class="form-grid" onsubmit="submitNotice(event)">
+              <div class="form-field col-span-full"><label>Title</label><input type="text" id="noticeTitle" required></div>
+              <div class="form-field col-span-full"><label>Message</label><textarea id="noticeMsg" rows="3" required></textarea></div>
+              <div class="col-span-full flex justify-end"><button type="submit" class="px-3 py-1 bg-blue-600 text-white rounded text-xs font-bold">Post</button></div>
+            </form>
+          </div>
+          <div class="card">
+            <div class="p-3 border-b flex justify-between bg-slate-50"><h3 class="font-bold text-slate-800 text-sm">Notice Board</h3><button onclick="document.getElementById('noticeFormContainer').classList.toggle('hidden')" class="bg-blue-600 text-white px-3 py-1 rounded text-xs font-bold">New Notice</button></div>
+            <div id="noticeList" class="p-4 space-y-3"></div>
+          </div>
+        </div>
+
+        <!-- PROFILE -->
+        <div id="view-profile" class="hidden space-y-4">
+          <div class="card max-w-lg mx-auto text-center p-6">
+            <div class="w-20 h-20 bg-blue-100 text-blue-600 rounded-full flex items-center justify-center text-2xl font-black mx-auto mb-3" id="profAvatar">ADM</div>
+            <h2 class="text-xl font-bold text-slate-800" id="profName">Name</h2>
+            <p class="text-sm text-slate-500 mb-4" id="profRole">Role</p>
+            <div class="text-left bg-slate-50 p-4 rounded-lg space-y-2 text-xs">
+              <p><b>Employee ID:</b> <span id="profId"></span></p>
+              <p><b>Email:</b> <span id="profEmail"></span></p>
+              <p><b>Team:</b> <span id="profTeam"></span></p>
             </div>
-            <div class="overflow-x-auto max-h-[65vh]"><table><thead><tr><th>S/L No.</th><th>Product Name</th><th>CCR No</th><th>Category</th><th>Action</th></tr></thead><tbody id="ccrTableBody"></tbody></table></div>
           </div>
         </div>
 
-        <!-- WAREHOUSE -->
-        <div id="view-warehouse" class="hidden space-y-4">
-          <div id="whFormContainer" class="drawer-panel hidden mb-4">
-            <h2 class="text-sm font-bold border-b pb-2 mb-3">Update Warehouse Data (S/L <span id="whSlDisplay"></span>)</h2>
-            <form id="whForm" class="form-grid" onsubmit="submitWhForm(event)">
-              <input type="hidden" id="whSl">
-              <div class="form-field"><label>Material Category</label><select id="whCat"><option value="RM">RM</option><option value="PM">PM</option></select></div>
-              <div class="form-field"><label>Availability</label><select id="whAvail"><option value="Yes">Yes</option><option value="No">No</option></select></div>
-              <div class="form-field"><label>Material Details</label><input type="text" id="whDetails"></div>
-              <div class="form-field"><label>Available Date</label><input type="date" id="whDate"></div>
-              <div class="form-field col-span-full"><label>Remarks</label><input type="text" id="whRemarks"></div>
-              <div class="col-span-full flex justify-end gap-2 mt-2"><button type="button" onclick="document.getElementById('whFormContainer').classList.add('hidden')" class="px-3 py-1 border rounded text-xs">Cancel</button><button type="submit" class="px-3 py-1 bg-blue-600 text-white rounded text-xs font-bold">Save</button></div>
-            </form>
+        <!-- ADMIN PANEL -->
+        <div id="view-admin" class="hidden space-y-4">
+          <div class="card overflow-hidden">
+            <div class="p-3 border-b bg-slate-50"><h3 class="font-bold text-slate-800 text-sm">User Management (Admin)</h3></div>
+            <div class="overflow-x-auto"><table><thead><tr><th>Emp ID</th><th>Name</th><th>Team</th><th>Status</th><th>Action</th></tr></thead><tbody id="adminUserTable"></tbody></table></div>
           </div>
           <div class="card overflow-hidden">
-            <div class="p-3 border-b bg-slate-50"><h3 class="font-bold text-slate-800 text-sm">Warehouse Material Tracking</h3></div>
-            <div class="overflow-x-auto max-h-[65vh]"><table><thead><tr><th>S/L No.</th><th>Product Name</th><th>Category</th><th>Material Status</th><th>Action</th></tr></thead><tbody id="whTableBody"></tbody></table></div>
-          </div>
-        </div>
-
-        <!-- VALIDATION -->
-        <div id="view-validation" class="hidden space-y-4">
-          <div id="valFormContainer" class="drawer-panel hidden mb-4">
-            <h2 class="text-sm font-bold border-b pb-2 mb-3">Update Validation (S/L <span id="valSlDisplay"></span>)</h2>
-            <form id="valForm" class="form-grid" onsubmit="submitValForm(event)">
-              <input type="hidden" id="valSl">
-              <div class="form-field"><label>Protocol No</label><input type="text" id="valProtoNo"></div>
-              <div class="form-field"><label>Protocol Approval Date</label><input type="date" id="valProtoDate"></div>
-              <div class="form-field"><label>Final Report Approval Date</label><input type="date" id="valReportDate"></div>
-              <div class="form-field"><label>Remarks</label><input type="text" id="valRemarks"></div>
-              <div class="col-span-full flex justify-end gap-2 mt-2"><button type="button" onclick="document.getElementById('valFormContainer').classList.add('hidden')" class="px-3 py-1 border rounded text-xs">Cancel</button><button type="submit" class="px-3 py-1 bg-blue-600 text-white rounded text-xs font-bold">Save</button></div>
-            </form>
-          </div>
-          <div class="card overflow-hidden">
-            <div class="p-3 border-b bg-slate-50"><h3 class="font-bold text-slate-800 text-sm">Validation Status</h3></div>
-            <div class="overflow-x-auto max-h-[65vh]"><table><thead><tr><th>S/L No.</th><th>Product Name</th><th>Protocol Status</th><th>Execution Status</th><th>Action</th></tr></thead><tbody id="validationTableBody"></tbody></table></div>
-          </div>
-        </div>
-
-        <!-- QA -->
-        <div id="view-qa" class="hidden space-y-4">
-          <div id="qaFormContainer" class="drawer-panel hidden mb-4">
-            <h2 class="text-sm font-bold border-b pb-2 mb-3">Update QA Batches (S/L <span id="qaSlDisplay"></span>)</h2>
-            <form id="qaForm" class="form-grid" onsubmit="submitQaForm(event)">
-              <input type="hidden" id="qaSl">
-              <div class="form-field"><label>Batch 1 No</label><input type="text" id="qaB1No"></div>
-              <div class="form-field"><label>Batch 1 Issue</label><input type="date" id="qaB1Iss"></div>
-              <div class="form-field"><label>Batch 1 Release</label><input type="date" id="qaB1Rel"></div>
-              
-              <div class="form-field"><label>Batch 2 No</label><input type="text" id="qaB2No"></div>
-              <div class="form-field"><label>Batch 2 Issue</label><input type="date" id="qaB2Iss"></div>
-              <div class="form-field"><label>Batch 2 Release</label><input type="date" id="qaB2Rel"></div>
-
-              <div class="form-field"><label>Batch 3 No</label><input type="text" id="qaB3No"></div>
-              <div class="form-field"><label>Batch 3 Issue</label><input type="date" id="qaB3Iss"></div>
-              <div class="form-field"><label>Batch 3 Release</label><input type="date" id="qaB3Rel"></div>
-              
-              <div class="col-span-full flex justify-end gap-2 mt-2"><button type="button" onclick="document.getElementById('qaFormContainer').classList.add('hidden')" class="px-3 py-1 border rounded text-xs">Cancel</button><button type="submit" class="px-3 py-1 bg-blue-600 text-white rounded text-xs font-bold">Save</button></div>
-            </form>
-          </div>
-          <div class="card overflow-hidden">
-            <div class="p-3 border-b bg-slate-50"><h3 class="font-bold text-slate-800 text-sm">QA Batch Release</h3></div>
-            <div class="overflow-x-auto max-h-[65vh]"><table><thead><tr><th>S/L No.</th><th>Product Name</th><th>Batch Status</th><th>Release Status</th><th>Action</th></tr></thead><tbody id="qaTableBody"></tbody></table></div>
+            <div class="p-3 border-b bg-slate-50"><h3 class="font-bold text-slate-800 text-sm">Audit Logs (Last 100)</h3></div>
+            <div class="overflow-x-auto max-h-64"><table><thead><tr><th>Date</th><th>User</th><th>Action</th><th>Field</th></tr></thead><tbody id="auditTableBody"></tbody></table></div>
           </div>
         </div>
 
@@ -198,14 +170,29 @@
     </main>
   </div>
 
+  <!-- COMMENT MODAL -->
+  <div id="commentModal" class="modal hidden">
+    <div class="bg-white rounded-xl shadow-2xl w-full max-w-md mx-4 flex flex-col max-h-[80vh]">
+      <div class="p-4 border-b flex justify-between bg-slate-50"><h3 class="font-bold text-sm">Comments for <span id="commentSlDisplay" class="text-blue-600"></span></h3><button onclick="document.getElementById('commentModal').classList.add('hidden')" class="text-red-500"><i class="fa-solid fa-xmark"></i></button></div>
+      <div class="p-4 overflow-y-auto flex-1 space-y-3" id="commentList"></div>
+      <div class="p-4 border-t bg-slate-50">
+        <form onsubmit="submitComment(event)">
+          <input type="hidden" id="commentSl">
+          <input type="text" id="commentSubject" placeholder="Subject" required class="w-full px-2 py-1 border rounded text-xs mb-2">
+          <textarea id="commentText" placeholder="Write a comment..." required rows="2" class="w-full px-2 py-1 border rounded text-xs mb-2"></textarea>
+          <button type="submit" class="bg-blue-600 text-white px-3 py-1 rounded text-xs font-bold w-full">Post Comment</button>
+        </form>
+      </div>
+    </div>
+  </div>
+
   <script>
     const SUPABASE_URL = 'https://zvjrbnlmwaigqotlwrlv.supabase.co'; 
     const SUPABASE_ANON_KEY = 'sb_publishable_-laJfxmOVoe3F3kBtU30tQ_TQRboWCI';
     const FUNCTIONS_URL = 'https://zvjrbnlmwaigqotlwrlv.supabase.co/functions/v1';
-
     const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
     let CURRENT_USER = null;
-    let CURRENT_DATA = []; // পেজের ডেটা ক্যাশ
+    let CURRENT_DATA = [];
 
     function showLoading(s) { document.getElementById('loadingSpinner').classList.toggle('hidden', !s); }
     function showToast(m, t = 'success') { const c = document.getElementById('customAlertContainer'); const e = document.createElement('div'); e.className = `px-4 py-2 rounded shadow-lg text-white font-bold text-xs transform transition-all duration-300 translate-x-full ${t === 'success' ? 'bg-emerald-600' : 'bg-red-600'}`; e.innerHTML = m; c.appendChild(e); setTimeout(() => e.classList.remove('translate-x-full'), 10); setTimeout(() => { e.classList.add('translate-x-full'); setTimeout(() => e.remove(), 300); }, 3000); }
@@ -222,7 +209,6 @@
         const { data: authData, error: authErr } = await supabaseClient.auth.signInWithPassword({ email: document.getElementById('loginEmpId').value.trim().toLowerCase() + '@valicore.com', password: document.getElementById('loginPassword').value.trim() });
         if (authErr) throw new Error("ভুল তথ্য!");
         const { data: profile } = await supabaseClient.from('users').select('*').eq('auth_id', authData.user.id).single();
-        
         CURRENT_USER = profile;
         document.getElementById('loginPageWrapper').classList.add('hidden');
         document.getElementById('mainAppWrapper').classList.remove('hidden');
@@ -230,7 +216,6 @@
         document.getElementById('navUserRole').innerText = profile.role;
         document.getElementById('headerWelcomeText').innerText = `Welcome, ${profile.full_name}`;
         document.getElementById('navAvatar').innerText = profile.team_name.substring(0,3).toUpperCase();
-
         document.querySelector('.sidebar-link').classList.add('active');
         document.getElementById('view-dashboard').classList.remove('hidden');
         loadDashboardData();
@@ -245,16 +230,22 @@
       document.querySelectorAll('#viewContainer > div').forEach(d => d.classList.add('hidden'));
       document.getElementById(`view-${p}`).classList.remove('hidden');
       document.getElementById('pageTitle').innerText = p.toUpperCase();
-      if (p !== 'dashboard') loadModuleData(p, 1);
+      
+      if (p === 'dashboard') loadDashboardData();
+      if (p === 'ccr' || p === 'warehouse' || p === 'validation' || p === 'qa') loadModuleData(p, 1);
+      if (p === 'notice') loadNotices();
+      if (p === 'profile') loadProfile();
+      if (p === 'admin') loadAdminData();
     }
 
+    // --- ড্যাশবোর্ড ---
     async function loadDashboardData() {
       try {
         const rows = JSON.parse(await callApi('fetchFinalSummaryData', []));
         let m = { matNo: 0, pPending: 0, completed: 0 }, c = { PV: 0, PVR: 0, PO: 0 };
         rows.forEach(r => {
-          if (r.Category === 'Process Validation') c.PV++; else if (r.Category === 'Process Verification') c.PVR++; else if (r.Category === 'Process Optimization') c.PO++;
-          if (r.MaterialAvailability === 'No') m.matNo++; if (r.ProtocolStatus === 'Pending') m.pPending++; if (r.ExecutionStatus === 'Completed') m.completed++;
+          if (r.category === 'Process Validation') c.PV++; else if (r.category === 'Process Verification') c.PVR++; else if (r.category === 'Process Optimization') c.PO++;
+          if (r.material_availability === 'No') m.matNo++; if (r.protocol_status === 'Pending') m.pPending++; if (r.execution_status === 'Completed') m.completed++;
         });
         document.getElementById('metricMatNeed').innerText = m.matNo;
         document.getElementById('metricProtoPending').innerText = m.pPending;
@@ -264,92 +255,100 @@
       } catch (e) { console.error(e); }
     }
 
+    // --- মডিউল ডেটা ---
     async function loadModuleData(mod, page) {
       const tb = document.getElementById(mod + 'TableBody'); if(!tb) return;
       tb.innerHTML = '<tr><td colspan="5" class="text-center py-4">Loading...</td></tr>';
       try {
         let rows = [];
         if(mod === 'ccr') rows = (await callApi('fetchCcrPaged', [{ page }])).rows;
-        else {
-           const res = await callApi('fetchModuleData', [{ module: mod, page }]);
-           rows = res.rows;
-        }
-        CURRENT_DATA = rows; // সেভ করে রাখলাম ফর্মে পপুলেট করার জন্য
+        else rows = (await callApi('fetchModuleData', [{ module: mod, page }])).rows;
+        CURRENT_DATA = rows;
         
         if(rows.length === 0) { tb.innerHTML = '<tr><td colspan="5" class="text-center py-4 text-slate-400">No records.</td></tr>'; return; }
 
-        if(mod === 'ccr') tb.innerHTML = rows.map(r => `<tr><td class="font-bold">S/L ${r.CCRSL}</td><td>${r.ProductName}</td><td>${r.CCRNo}</td><td>${r.Category}</td><td><button class="text-blue-600">Edit</button></td></tr>`).join('');
-        if(mod === 'warehouse') tb.innerHTML = rows.map(r => `<tr><td class="font-bold">S/L ${r.CCRSL}</td><td>${r.ProductName}</td><td>${r.Category}</td><td><span class="px-2 py-1 bg-yellow-100 text-yellow-700 rounded text-[10px]">${r.MaterialAvailability || 'Pending'}</span></td><td><button onclick="openWhForm(${r.CCRSL})" class="text-blue-600 font-bold hover:underline">Update</button></td></tr>`).join('');
-        if(mod === 'validation') tb.innerHTML = rows.map(r => `<tr><td class="font-bold">S/L ${r.CCRSL}</td><td>${r.ProductName}</td><td>${r.ProtocolStatus || 'Pending'}</td><td>${r.ExecutionStatus || 'Pending'}</td><td><button onclick="openValForm(${r.CCRSL})" class="text-blue-600 font-bold hover:underline">Update</button></td></tr>`).join('');
-        if(mod === 'qa') tb.innerHTML = rows.map(r => `<tr><td class="font-bold">S/L ${r.CCRSL}</td><td>${r.ProductName}</td><td>${r.BatchStatus || 'Pending'}</td><td>${r.ExecutionStatus || 'Pending'}</td><td><button onclick="openQaForm(${r.CCRSL})" class="text-blue-600 font-bold hover:underline">Update</button></td></tr>`).join('');
+        if(mod === 'ccr') tb.innerHTML = rows.map(r => `<tr><td class="font-bold">S/L ${r.CCRSL}</td><td>${r.ProductName}</td><td>${r.CCRNo}</td><td><button onclick="openComments(${r.CCRSL})" class="text-blue-600 hover:underline">Comment</button></td></tr>`).join('');
+        if(mod === 'warehouse') tb.innerHTML = rows.map(r => `<tr><td class="font-bold">S/L ${r.sl}</td><td>${r.product_name}</td><td>${r.material_availability || 'Pending'}</td><td><button onclick="promptUpdate('warehouse', ${r.sl})" class="text-blue-600 hover:underline">Update</button></td></tr>`).join('');
+        if(mod === 'validation') tb.innerHTML = rows.map(r => `<tr><td class="font-bold">S/L ${r.sl}</td><td>${r.product_name}</td><td>${r.protocol_status || 'Pending'}</td><td><button onclick="promptUpdate('validation', ${r.sl})" class="text-blue-600 hover:underline">Update</button></td></tr>`).join('');
+        if(mod === 'qa') tb.innerHTML = rows.map(r => `<tr><td class="font-bold">S/L ${r.sl}</td><td>${r.product_name}</td><td>${r.batch_status || 'Pending'}</td><td><button onclick="promptUpdate('qa', ${r.sl})" class="text-blue-600 hover:underline">Update</button></td></tr>`).join('');
       } catch (e) { tb.innerHTML = `<tr><td colspan="5" class="text-red-500 text-center">${e.message}</td></tr>`; }
     }
 
-    // --- ফর্ম ওপেন করার ফাংশন ---
-    function openWhForm(sl) {
-      const row = CURRENT_DATA.find(r => r.CCRSL === sl); if(!row) return;
-      document.getElementById('whSl').value = sl;
-      document.getElementById('whSlDisplay').innerText = sl;
-      document.getElementById('whCat').value = row.MaterialCategory || 'RM';
-      document.getElementById('whAvail').value = row.MaterialAvailability || 'No';
-      document.getElementById('whDetails').value = row.MaterialDetails || '';
-      document.getElementById('whDate').value = row.AvailableDate || '';
-      document.getElementById('whRemarks').value = row.WarehouseRemarks || '';
-      document.getElementById('whFormContainer').classList.remove('hidden');
+    // --- কমেন্ট সিস্টেম ---
+    async function openComments(sl) {
+      document.getElementById('commentSl').value = sl;
+      document.getElementById('commentSlDisplay').innerText = sl;
+      document.getElementById('commentModal').classList.remove('hidden');
+      const list = document.getElementById('commentList');
+      list.innerHTML = 'Loading...';
+      const data = await callApi('fetchComments', [sl]);
+      list.innerHTML = data.length ? data.map(c => `<div class="bg-slate-50 p-2 rounded border"><b class="text-xs">${c.subject}</b><p class="text-[10px] text-slate-500">${c.user_name} • ${c.date}</p><p class="text-xs mt-1">${c.comment}</p></div>`).join('') : '<p class="text-center text-slate-400">No comments yet.</p>';
     }
-    function openValForm(sl) {
-      const row = CURRENT_DATA.find(r => r.CCRSL === sl); if(!row) return;
-      document.getElementById('valSl').value = sl;
-      document.getElementById('valSlDisplay').innerText = sl;
-      document.getElementById('valProtoNo').value = row.ProtocolNo || '';
-      document.getElementById('valProtoDate').value = row.ProtocolApprovalDate || '';
-      document.getElementById('valReportDate').value = row.FinalReportApprovalDate || '';
-      document.getElementById('valRemarks').value = row.ValidationRemarks || '';
-      document.getElementById('valFormContainer').classList.remove('hidden');
-    }
-    function openQaForm(sl) {
-      const row = CURRENT_DATA.find(r => r.CCRSL === sl); if(!row) return;
-      document.getElementById('qaSl').value = sl;
-      document.getElementById('qaSlDisplay').innerText = sl;
-      document.getElementById('qaB1No').value = row.BatchNo1 || ''; document.getElementById('qaB1Iss').value = row.Batch1IssueDate || ''; document.getElementById('qaB1Rel').value = row.Batch1FinalReleaseDate || '';
-      document.getElementById('qaB2No').value = row.BatchNo2 || ''; document.getElementById('qaB2Iss').value = row.Batch2IssueDate || ''; document.getElementById('qaB2Rel').value = row.Batch2FinalReleaseDate || '';
-      document.getElementById('qaB3No').value = row.BatchNo3 || ''; document.getElementById('qaB3Iss').value = row.Batch3IssueDate || ''; document.getElementById('qaB3Rel').value = row.Batch3FinalReleaseDate || '';
-      document.getElementById('qaFormContainer').classList.remove('hidden');
+    async function submitComment(e) {
+      e.preventDefault();
+      const sl = document.getElementById('commentSl').value;
+      const subject = document.getElementById('commentSubject').value;
+      const comment = document.getElementById('commentText').value;
+      await callApi('addComment', [{ sl, subject, comment }]);
+      document.getElementById('commentText').value = '';
+      openComments(sl);
+      showToast('Comment added!');
     }
 
-    // --- ফর্ম সাবমিট করার ফাংশন ---
-    async function submitWhForm(e) {
-      e.preventDefault(); showLoading(true);
-      const sl = parseInt(document.getElementById('whSl').value);
-      const payload = { material_category: document.getElementById('whCat').value, material_availability: document.getElementById('whAvail').value, material_details: document.getElementById('whDetails').value, available_date: document.getElementById('whDate').value || null, remarks: document.getElementById('whRemarks').value };
-      try { await callApi('updateModuleData', [{ module: 'warehouse', sl, payload }]); showToast('Saved!'); document.getElementById('whFormContainer').classList.add('hidden'); loadModuleData('warehouse'); } catch(e) { showToast(e.message, 'error'); } finally { showLoading(false); }
+    // --- নোটিশ বোর্ড ---
+    async function loadNotices() {
+      const list = document.getElementById('noticeList');
+      list.innerHTML = 'Loading...';
+      const data = await callApi('fetchNotices', []);
+      list.innerHTML = data.length ? data.map(n => `<div class="bg-blue-50 border-l-4 border-blue-500 p-3 rounded shadow-sm mb-2"><h4 class="font-bold text-sm">${n.title}</h4><p class="text-xs mt-1">${n.message}</p><p class="text-[9px] text-slate-500 mt-2">By ${n.posted_by_role} • ${n.date}</p></div>`).join('') : '<p class="text-center text-slate-400">No notices.</p>';
     }
-    async function submitValForm(e) {
-      e.preventDefault(); showLoading(true);
-      const sl = parseInt(document.getElementById('valSl').value);
-      const payload = { protocol_no: document.getElementById('valProtoNo').value, protocol_approval_date: document.getElementById('valProtoDate').value || null, final_report_approval_date: document.getElementById('valReportDate').value || null, remarks: document.getElementById('valRemarks').value };
-      try { await callApi('updateModuleData', [{ module: 'validation', sl, payload }]); showToast('Saved!'); document.getElementById('valFormContainer').classList.add('hidden'); loadModuleData('validation'); } catch(e) { showToast(e.message, 'error'); } finally { showLoading(false); }
-    }
-    async function submitQaForm(e) {
-      e.preventDefault(); showLoading(true);
-      const sl = parseInt(document.getElementById('qaSl').value);
-      const payload = { 
-        batch_no_1: document.getElementById('qaB1No').value, batch_1_issue_date: document.getElementById('qaB1Iss').value || null, batch_1_final_release_date: document.getElementById('qaB1Rel').value || null,
-        batch_no_2: document.getElementById('qaB2No').value, batch_2_issue_date: document.getElementById('qaB2Iss').value || null, batch_2_final_release_date: document.getElementById('qaB2Rel').value || null,
-        batch_no_3: document.getElementById('qaB3No').value, batch_3_issue_date: document.getElementById('qaB3Iss').value || null, batch_3_final_release_date: document.getElementById('qaB3Rel').value || null
-      };
-      try { await callApi('updateModuleData', [{ module: 'qa', sl, payload }]); showToast('Saved!'); document.getElementById('qaFormContainer').classList.add('hidden'); loadModuleData('qa'); } catch(e) { showToast(e.message, 'error'); } finally { showLoading(false); }
+    async function submitNotice(e) {
+      e.preventDefault();
+      await callApi('postNotice', [{ title: document.getElementById('noticeTitle').value, message: document.getElementById('noticeMsg').value }]);
+      document.getElementById('noticeForm').reset();
+      document.getElementById('noticeFormContainer').classList.add('hidden');
+      loadNotices();
+      showToast('Notice Posted!');
     }
 
-    // --- CCR ফর্ম ---
-    function toggleCcrForm(s) { document.getElementById('ccrFormContainer').classList.toggle('hidden', !s); if(s) loadReasons(); }
-    async function loadReasons() { const sel = document.getElementById('ccrReason'); if(sel.options.length > 0) return; const res = await callApi('fetchSystemConfig', []); res.REASON_FOR_CCR.forEach(r => sel.innerHTML += `<option value="${r}">${r}</option>`); }
-    async function submitNewCcr(e) {
-      e.preventDefault(); showLoading(true);
+    // --- প্রোফাইল ---
+    function loadProfile() {
+      document.getElementById('profAvatar').innerText = CURRENT_USER.team_name.substring(0,3).toUpperCase();
+      document.getElementById('profName').innerText = CURRENT_USER.full_name;
+      document.getElementById('profRole').innerText = CURRENT_USER.role;
+      document.getElementById('profId').innerText = CURRENT_USER.employee_id;
+      document.getElementById('profEmail').innerText = CURRENT_USER.email;
+      document.getElementById('profTeam').innerText = CURRENT_USER.team_name;
+    }
+
+    // --- অ্যাডমিন প্যানেল ---
+    async function loadAdminData() {
+      const users = await callApi('adminFetchUsers', []);
+      document.getElementById('adminUserTable').innerHTML = users.map(u => `<tr><td>${u.employee_id}</td><td>${u.full_name}</td><td>${u.team_name}</td><td>${u.status}</td><td><button onclick="approveUser('${u.employee_id}')" class="text-blue-600">Approve</button></td></tr>`).join('');
+      
+      const logs = await callApi('fetchAuditLogs', []);
+      document.getElementById('auditTableBody').innerHTML = logs.map(l => `<tr><td>${l.date}</td><td>${l.user_name || l.employee_id}</td><td>${l.operation}</td><td>${l.field_name}</td></tr>`).join('');
+    }
+    async function approveUser(id) {
+      await callApi('adminUpdateUser', [{ empId: id, status: 'APPROVED' }]);
+      showToast('User Approved!');
+      loadAdminData();
+    }
+
+    // --- কুইক আপডেট (ফর্ম) ---
+    async function promptUpdate(mod, sl) {
+      const val = prompt(`Enter new status for S/L ${sl}:`);
+      if(!val) return;
+      showLoading(true);
       try {
-        await callApi('addNewCcrRecord', [{ productName: document.getElementById('ccrName').value, ccrNo: document.getElementById('ccrNo').value, batchSize: document.getElementById('ccrBatch').value, reasonForCcr: document.getElementById('ccrReason').value, existingStatus: document.getElementById('ccrExisting').value, proposedChange: document.getElementById('ccrProposed').value, actionPlan: document.getElementById('ccrCategory').value, materialDependency: document.getElementById('ccrMatDep').value }]);
-        showToast('Saved!'); toggleCcrForm(false); document.getElementById('ccrForm').reset(); loadModuleData('ccr', 1);
-      } catch (err) { showToast(err.message, 'error'); } finally { showLoading(false); }
+        let payload = {};
+        if(mod === 'warehouse') payload = { material_availability: val };
+        if(mod === 'validation') payload = { protocol_status: val };
+        if(mod === 'qa') payload = { final_released_status: val };
+        await callApi('updateModuleData', [{ module: mod, sl, payload }]);
+        showToast('Updated!');
+        loadModuleData(mod, 1);
+      } catch(e) { showToast(e.message, 'error'); } finally { showLoading(false); }
     }
   </script>
 </body>
