@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ValiCore</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <script src="https://code.highcharts.com/highcharts.js"></script>
+  <script src="https://code.highcharts.com/highcharts-3d.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <div id="loadingSpinner" class="spinner-overlay hidden">
+    <div class="spinner-card"><div class="spinner-circle"></div><p class="spinner-text">Processing...</p></div>
+  </div>
+  <div id="customAlertContainer" class="fixed top-5 right-5 z-[10000] flex flex-col gap-3 pointer-events-none"></div>
+
+  <!-- LOGIN PAGE -->
+  <div id="loginPageWrapper">
+    <div class="login-left">
+      <div class="hex-bg"></div>
+      <div class="relative z-10 flex flex-col items-center text-center">
+        <h1 class="hero-title flex items-center"><span class="text-[#0b307f]">Vali</span><span class="text-[#0ea5e9]">Core</span></h1>
+        <h2 class="text-xl md:text-2xl font-black text-[#0a2559] mb-4 mt-2">Total Process Validation Management System</h2>
+      </div>
+    </div>
+    <div class="login-separator"></div>
+    <div class="login-right">
+      <div class="login-card">
+        <div class="text-center mb-6">
+          <h2 class="text-2xl font-black text-[#0b307f]"><span class="text-[#0ea5e9]">Vali</span>Core Login</h2>
+          <p class="text-slate-500 text-xs mt-1">Sign in with Employee ID</p>
+        </div>
+        <form id="loginForm" onsubmit="executeLogin(event)">
+          <div class="custom-input-wrapper">
+            <label>EMPLOYEE ID</label>
+            <i class="fa-regular fa-user icon-left"></i>
+            <input type="text" id="loginEmpId" required value="ADMIN001">
+          </div>
+          <div class="custom-input-wrapper">
+            <label>PASSWORD</label>
+            <i class="fa-solid fa-lock icon-left"></i>
+            <input type="password" id="loginPassword" required>
+          </div>
+          <button type="submit" class="w-full bg-gradient-to-r from-[#1e3a8a] to-[#0ea5e9] text-white font-extrabold py-2.5 rounded-lg mt-4 shadow-md">Login</button>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- MAIN APP -->
+  <div id="mainAppWrapper" class="app-wrapper hidden">
+    <!-- SIDEBAR -->
+    <aside class="sidebar-panel">
+      <div class="sidebar-header">
+        <div class="logo-container">
+          <svg viewBox="0 0 120 120" class="w-8 h-8"><path d="M60 115 C20 95 5 50 5 15 C30 15 45 5 60 0 C75 5 90 15 115 15 C115 50 100 95 60 115 Z" fill="#0ea5e9" stroke="#fff" stroke-width="3"/><text x="60" y="75" font-family="Arial" font-weight="900" font-size="38" fill="#fff" text-anchor="middle">PV</text></svg>
+          <span class="logo-text"><span style="color: #bae6fd;">Vali</span>Core</span>
+        </div>
+      </div>
+      <div class="user-summary">
+        <div id="navUserAvatar" class="user-avatar">ADM</div>
+        <div class="user-meta">
+          <div id="navUserFullName" class="user-name">-</div>
+          <div id="navUserTeamRole" class="user-role">-</div>
+        </div>
+      </div>
+      <nav id="appNavigationLinks" class="nav-links">
+        <button class="sidebar-link active" onclick="navigateTo('dashboard', this)"><i class="fa-solid fa-house"></i><span>Dashboard</span></button>
+        <button class="sidebar-link" onclick="navigateTo('ccr', this)"><i class="fa-solid fa-file-invoice"></i><span>CCR (R&D)</span></button>
+        <button class="sidebar-link" onclick="navigateTo('warehouse', this)"><i class="fa-solid fa-warehouse"></i><span>Warehouse</span></button>
+        <button class="sidebar-link" onclick="navigateTo('validation', this)"><i class="fa-solid fa-shield-halved"></i><span>Validation</span></button>
+        <button class="sidebar-link" onclick="navigateTo('qa', this)"><i class="fa-solid fa-clipboard-check"></i><span>QA (Doc. Control)</span></button>
+        <button class="sidebar-link" onclick="navigateTo('admin', this)"><i class="fa-solid fa-gear"></i><span>Admin Panel</span></button>
+      </nav>
+      <div class="logout-footer"><button onclick="executeLogout()" class="logout-btn"><i class="fa-solid fa-arrow-right-from-bracket"></i><span>System Logout</span></button></div>
+    </aside>
+
+    <!-- MAIN CONTENT -->
+    <main class="main-content">
+      <header class="top-header">
+        <h1 id="currentActivePageTitle" class="header-title">Dashboard</h1>
+        <div class="flex items-center gap-2">
+          <span class="text-xs font-bold text-slate-700" id="headerWelcomeText">Welcome, User</span>
+        </div>
+      </header>
+
+      <div class="viewport-body" id="viewContainer">
+        
+        <!-- DASHBOARD -->
+        <div id="view-dashboard" class="space-y-4 animate-fade-in">
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
+            <div class="bg-gradient-to-br from-orange-400 to-red-500 text-white rounded-xl p-4 shadow-md"><p class="text-[10px] font-bold uppercase">Material Need</p><h3 class="text-3xl font-black mt-1" id="metricMatNeed">0</h3></div>
+            <div class="bg-gradient-to-br from-red-500 to-red-700 text-white rounded-xl p-4 shadow-md"><p class="text-[10px] font-bold uppercase">Protocol Pending</p><h3 class="text-3xl font-black mt-1" id="metricProtoPending">0</h3></div>
+            <div class="bg-gradient-to-br from-emerald-400 to-emerald-600 text-white rounded-xl p-4 shadow-md"><p class="text-[10px] font-bold uppercase">Completed</p><h3 class="text-3xl font-black mt-1" id="metricCompleted">0</h3></div>
+          </div>
+          <div class="grid grid-cols-1 lg:grid-cols-2 gap-4 mt-4">
+            <div class="bg-white p-3 rounded-lg border border-slate-200 shadow-sm"><div id="pvStatusChart" class="w-full h-48"></div></div>
+            <div class="bg-white p-3 rounded-lg border border-slate-200 shadow-sm"><div id="actionPlanChart" class="w-full h-48"></div></div>
+          </div>
+        </div>
+
+        <!-- CCR MODULE -->
+        <div id="view-ccr" class="hidden space-y-4 animate-fade-in">
+          <!-- Form -->
+          <div id="ccrFormContainer" class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm hidden mb-4">
+            <div class="border-b border-slate-200 pb-2 mb-3 flex justify-between items-center">
+              <h2 class="text-base font-bold text-slate-800"><i class="fa-solid fa-file-circle-plus text-blue-600"></i> New CCR Record Form</h2>
+              <button onclick="toggleCcrForm(false)" class="text-slate-400 hover:text-red-500"><i class="fa-solid fa-xmark text-lg"></i></button>
+            </div>
+            <form id="formCcrEntry" class="grid grid-cols-1 md:grid-cols-4 gap-3" onsubmit="submitNewCcr(event)">
+              <div><label class="block text-[10px] font-bold text-slate-500 uppercase mb-1">Product Name</label><input type="text" id="ccrProductName" required class="w-full px-3 py-1.5 border border-slate-300 rounded-md text-xs"></div>
+              <div><label class="block text-[10px] font-bold text-slate-500 uppercase mb-1">CCR No</label><input type="text" id="ccrNoInput" required value="CCR/U01-" class="w-full px-3 py-1.5 border border-slate-300 rounded-md text-xs"></div>
+              <div><label class="block text-[10px] font-bold text-slate-500 uppercase mb-1">Batch Size (pcs)</label><input type="number" id="ccrBatchSize" required class="w-full px-3 py-1.5 border border-slate-300 rounded-md text-xs"></div>
+              <div>
+                <label class="block text-[10px] font-bold text-slate-500 uppercase mb-1">Category</label>
+                <select id="ccrActionPlan" required class="w-full px-3 py-1.5 border border-slate-300 rounded-md text-xs bg-white">
+                  <option value="Process Validation">Process Validation (PV)</option>
+                  <option value="Process Optimization">Process Optimization (PO)</option>
+                  <option value="Process Verification">Process Verification (PVR)</option>
+                </select>
+              </div>
+              <div class="md:col-span-4 flex justify-end gap-2 pt-2 border-t border-slate-100 mt-1">
+                <button type="button" onclick="toggleCcrForm(false)" class="px-5 py-2 border border-slate-300 rounded-md text-xs font-semibold text-slate-600 hover:bg-slate-50">Cancel</button>
+                <button type="submit" class="px-5 py-2 bg-[#1e3a8a] text-white font-bold rounded-md text-xs hover:bg-blue-900 shadow-sm">Submit Data</button>
+              </div>
+            </form>
+          </div>
+
+          <!-- Table -->
+          <div class="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
+            <div class="p-3 border-b border-slate-200 flex justify-between items-center bg-slate-50/50">
+              <h3 class="font-bold text-slate-800 text-sm"><i class="fa-solid fa-list text-blue-600"></i> CCR (R&D) Data Record List</h3>
+              <div class="flex gap-2">
+                <input type="text" id="ccrGlobalSearchInput" placeholder="Search..." class="px-3 py-1.5 border border-slate-300 rounded-md text-xs outline-none" onkeyup="loadCcrData(1)">
+                <button onclick="toggleCcrForm(true)" class="bg-[#1e3a8a] text-white px-3 py-1.5 rounded-md text-xs font-bold shadow-sm"><i class="fa-solid fa-plus"></i> New Entry</button>
+              </div>
+            </div>
+            <div class="overflow-x-auto max-h-[65vh]">
+              <table id="ccrModuleGridTable" class="w-full text-left border-collapse text-xs whitespace-nowrap">
+                <thead class="bg-[#2563eb] text-white font-semibold text-[10px] uppercase tracking-wider">
+                  <tr>
+                    <th class="sticky top-0 left-0 z-30 bg-[#2563eb] p-2">S/L No.</th>
+                    <th class="sticky top-0 z-20 bg-[#2563eb] p-2">Product Name</th>
+                    <th class="sticky top-0 z-20 bg-[#2563eb] p-2">CCR No</th>
+                    <th class="sticky top-0 z-20 bg-[#2563eb] p-2">Category</th>
+                    <th class="sticky top-0 z-20 bg-[#2563eb] p-2">Created At</th>
+                  </tr>
+                </thead>
+                <tbody id="ccrModuleGridTableBody" class="divide-y divide-slate-100 text-slate-700 bg-white"></tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <!-- OTHER VIEWS (Placeholders) -->
+        <div id="view-warehouse" class="hidden">Warehouse Module</div>
+        <div id="view-validation" class="hidden">Validation Module</div>
+        <div id="view-qa" class="hidden">QA Module</div>
+        <div id="view-admin" class="hidden">Admin Panel</div>
+
+      </div>
+    </main>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>
